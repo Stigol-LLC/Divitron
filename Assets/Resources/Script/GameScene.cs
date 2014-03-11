@@ -24,6 +24,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	AudioSource musicMenu = null;
 	[SerializeField]
 	AudioSource musicGame = null;
+	[SerializeField]
+	AudioSource soundDestroy = null;
 
 	[SerializeField]
 	float lenghtMoveTouch = 10.0f;
@@ -39,15 +41,21 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	[SerializeField]
 	bool musicPlay = true;
+	[SerializeField]
+	int[] arraySlideObject = new int[]{1,2,3,4};
+	[SerializeField]
+	bool allowCircleSlide = true;
+
+	private int indexSlide = 0;
 
 	bool slideInCurrentTouch = false;
 	// Use this for initialization
 	void Start () {
+		musicMenu.Play();
 		Application.targetFrameRate = 60;
 		TouchProcessor.Instance.AddListener(this,-1);
 		ViewManager.Active.GetViewById("GameOver").SetDelegate( "Restart", Restart );
 		ViewManager.Active.GetViewById("Game").SetDelegate("ShowPlayer",ShowPlayer);
-		//ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 
 		count_label = (Label)ViewManager.Active.GetViewById("Game").GetChildById("count");
 		ViewManager.Active.GetViewById("ViewStart").SetDelegate("Start",StartGame);
@@ -57,7 +65,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_playerAnimator = _player.GetComponent<Animator>();
 		ViewManager.Active.GetViewById("ViewSpalshScreen").IsVisible = false;
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = true;
-		//
+
 	}
 	
 	// Update is called once per frame
@@ -72,7 +80,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 	}
 	void OnDestroy(){
-		Debug.Log("Destroy");
+		//Debug.Log("Destroy");
 	}
 
 	public void SortZorder(){
@@ -90,62 +98,71 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		yield return new WaitForSeconds(1f);
 		ViewManager.Active.GetViewById("GameOver").IsVisible = true;
 		if(musicPlay){
-			musicMenu.enabled = true;
-			musicGame.enabled = false;
+			musicMenu.Play();
+			musicGame.Stop();
 		}
-		foreach(var s in moveBarrier.ListMoveObject){
-			s.Clear();
-		}
+		moveBarrier.Reset();
+		_player.GetComponent<VisualNode>().IsVisible = false;
+		_player.Reset();
 	}
 	void GameOver(){
-		TouchProcessor.Instance.RemoveListener(this);
-		//_playerAnimator.enabled = false;
+		if(musicPlay){
+			soundDestroy.Play();
+		}
 		moveBackground.Pause = true;
 		moveBarrier.CurrentMoveObject().Pause = true;
 		_player.Pause = true;
-
-		//_playerAnimator.Play("Empty");
-		//_playerAnimator.Play("Kill2");
-
-	//	AnimatorLayerBlendingMode blendingModeT = _playerAnimator.runtimeAnimatorController. .GetLayerBlendingMode(newPos);
-
 		Camera.main.animation.Play();
 		StartCoroutine("ShowGameOverView");
 	}
-	void ChangeMusic(ICall bb){
-//		AudioListener al = Camera.main.GetComponent<AudioListener>();
-//		if(al != null){
-//			al.enabled = !al.enabled;
-//		}
-		musicPlay = !musicPlay;
-		musicMenu.enabled = musicPlay;
-	}
-	void StartGame(ICall bb){
-		moveBarrier.CurrentMoveObject().Pause = false;
-		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
-		ViewManager.Active.GetViewById("Game").IsVisible = true;
 
+	void PlayGame(){
+		moveBarrier.CurrentMoveObject().Pause = false;
 		if(musicPlay){
 			musicMenu.enabled = false;
-			musicGame.enabled = true;
+			musicMenu.Stop();
+			musicGame.Play();
 		}
-
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
-
+		_player.Pause = false;
+		Count = 0;
+		count_label.MTextMesh.text = Count.ToString();
 	}
+	void ShowPlayer(int num){
+		if(currentShow != num){
+			string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
+			_playerAnimator.Play(playState);
+			currentShow = num;
+		}
+	}
+
+	#region Action
 	void Restart(ICall bb){
-		Application.LoadLevel("GameScene");
+		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
+		PlayGame();
 	}
 	void ShowPlayer(ICall bb){
 		int num = int.Parse(bb.ActionValue);
 		ShowPlayer(num);
 	}
-	void ShowPlayer(int num){
-		string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
-		_playerAnimator.Play(playState);
-		currentShow = num;
+	void ChangeMusic(ICall bb){
+		musicPlay = !musicPlay;
+		if(musicPlay){
+			musicMenu.Play();
+		}else{
+			musicMenu.Stop();
+		}
 	}
+	void StartGame(ICall bb){
+		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
+		ViewManager.Active.GetViewById("Game").IsVisible = true;
+		PlayGame();
+	}
+	#endregion
+
+
+	#region Touch
 	public Rect GetTouchableBound(){
 		return new Rect(0,0,0,0);
 	}
@@ -170,23 +187,23 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		if(slideInCurrentTouch)
 			return false;
 		float length = touchBegin.x - touchPoint.x;
+
 		if(length > lenghtMoveTouch){
-			int n = currentShow;
-			n--;
-			if(n < 1){
-				n = 4;
+			indexSlide--;
+			if(indexSlide < 0){
+				indexSlide = (allowCircleSlide)?arraySlideObject.Length - 1:0;
 			}
 			slideInCurrentTouch = true;
-			ShowPlayer(n);
+			ShowPlayer(arraySlideObject[indexSlide]);
 		}else if(length < -lenghtMoveTouch){
-			int n = currentShow;
-			n++;
-			if(n > 4){
-				n = 1;
+			indexSlide++;
+			if(indexSlide >= arraySlideObject.Length){
+				indexSlide = (allowCircleSlide)?0:arraySlideObject.Length - 1;
 			}
 			slideInCurrentTouch = true;
-			ShowPlayer(n);
+			ShowPlayer(arraySlideObject[indexSlide]);
 		}
+
 		return false;
 	}
 	public void TouchEnd(Vector2 touchPoint){
@@ -195,4 +212,5 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 	public void TouchCancel(Vector2 touchPoint){
 	}
+	#endregion
 }

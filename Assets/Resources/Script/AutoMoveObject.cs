@@ -42,7 +42,7 @@ public class AutoMoveObject : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		listGo = UIEditor.Node.NodeContainer.GetAllChildren(transform);
+		//listGo = UIEditor.Node.NodeContainer.GetAllChildren(transform);
 	}
 	public Vector2 LimitPosition{
 		set{
@@ -85,6 +85,11 @@ public class AutoMoveObject : MonoBehaviour {
 		foreach(var go in listGo){
 			Destroy(go);
 		}
+		listGo.Clear();
+	}
+	public void Reset(){
+		Clear();
+		transform.position = new Vector3(0,0,transform.position.z);
 	}
 	// Update is called once per frame
 	void Update () {

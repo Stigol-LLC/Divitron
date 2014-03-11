@@ -15,7 +15,6 @@ public class Player : MonoBehaviour {
 	private bool _pause = false;
 	public void SetActionGameOver(Action act){
 		_actionGameOver = act;
-
 	}
 	void Update(){
 		if(_pause)
@@ -29,19 +28,16 @@ public class Player : MonoBehaviour {
 		if(haveCollision == true){
 			_actionGameOver();
 		}
-
 		transform.Translate(0,-_speedDown,0);
 	}
 	void OnTriggerEnter2D(Collider2D other) {
-		//Debug.Log("other.name" + other.name);
 		if(other.GetComponent<Player>() == null){
 			_actionGameOver();
-			foreach(var go in listChild){
-				if(go.animation != null){
-					//haveCollision = true;
-					go.animation.Play();
-				}
-			}
+		}
+	}
+	public void Reset(){
+		foreach(var go in listChild){
+			go.IsCollision = false;
 		}
 	}
 	public bool Pause{
