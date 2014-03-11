@@ -39,6 +39,12 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	[SerializeField]
 	bool musicPlay = true;
+	[SerializeField]
+	int[] arraySlideObject = new int[]{1,2,3,4};
+	[SerializeField]
+	bool allowCircleSlide = true;
+
+	private int indexSlide = 0;
 
 	bool slideInCurrentTouch = false;
 	// Use this for initialization
@@ -47,7 +53,6 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		TouchProcessor.Instance.AddListener(this,-1);
 		ViewManager.Active.GetViewById("GameOver").SetDelegate( "Restart", Restart );
 		ViewManager.Active.GetViewById("Game").SetDelegate("ShowPlayer",ShowPlayer);
-		//ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 
 		count_label = (Label)ViewManager.Active.GetViewById("Game").GetChildById("count");
 		ViewManager.Active.GetViewById("ViewStart").SetDelegate("Start",StartGame);
@@ -57,7 +62,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_playerAnimator = _player.GetComponent<Animator>();
 		ViewManager.Active.GetViewById("ViewSpalshScreen").IsVisible = false;
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = true;
-		//
+
 	}
 	
 	// Update is called once per frame
@@ -93,49 +98,41 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			musicMenu.enabled = true;
 			musicGame.enabled = false;
 		}
-		foreach(var s in moveBarrier.ListMoveObject){
-			s.Clear();
-		}
+		moveBarrier.Reset();
+		_player.GetComponent<VisualNode>().IsVisible = false;
+		_player.Reset();
 	}
 	void GameOver(){
-		TouchProcessor.Instance.RemoveListener(this);
-		//_playerAnimator.enabled = false;
+		//TouchProcessor.Instance.RemoveListener(this);
 		moveBackground.Pause = true;
 		moveBarrier.CurrentMoveObject().Pause = true;
 		_player.Pause = true;
-
-		//_playerAnimator.Play("Empty");
-		//_playerAnimator.Play("Kill2");
-
-	//	AnimatorLayerBlendingMode blendingModeT = _playerAnimator.runtimeAnimatorController. .GetLayerBlendingMode(newPos);
-
 		Camera.main.animation.Play();
 		StartCoroutine("ShowGameOverView");
 	}
 	void ChangeMusic(ICall bb){
-//		AudioListener al = Camera.main.GetComponent<AudioListener>();
-//		if(al != null){
-//			al.enabled = !al.enabled;
-//		}
 		musicPlay = !musicPlay;
 		musicMenu.enabled = musicPlay;
 	}
 	void StartGame(ICall bb){
-		moveBarrier.CurrentMoveObject().Pause = false;
+
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
 		ViewManager.Active.GetViewById("Game").IsVisible = true;
 
+		PlayGame();
+	}
+	void PlayGame(){
+		moveBarrier.CurrentMoveObject().Pause = false;
 		if(musicPlay){
 			musicMenu.enabled = false;
 			musicGame.enabled = true;
 		}
-
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
-
 	}
 	void Restart(ICall bb){
-		Application.LoadLevel("GameScene");
+		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
+		PlayGame();
 	}
 	void ShowPlayer(ICall bb){
 		int num = int.Parse(bb.ActionValue);
@@ -146,6 +143,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_playerAnimator.Play(playState);
 		currentShow = num;
 	}
+
+	#region Touch
 	public Rect GetTouchableBound(){
 		return new Rect(0,0,0,0);
 	}
@@ -170,23 +169,23 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		if(slideInCurrentTouch)
 			return false;
 		float length = touchBegin.x - touchPoint.x;
+
 		if(length > lenghtMoveTouch){
-			int n = currentShow;
-			n--;
-			if(n < 1){
-				n = 4;
+			indexSlide--;
+			if(indexSlide < 0){
+				indexSlide = (allowCircleSlide)?arraySlideObject.Length - 1:0;
 			}
 			slideInCurrentTouch = true;
-			ShowPlayer(n);
+			ShowPlayer(arraySlideObject[indexSlide]);
 		}else if(length < -lenghtMoveTouch){
-			int n = currentShow;
-			n++;
-			if(n > 4){
-				n = 1;
+			indexSlide++;
+			if(indexSlide >= arraySlideObject.Length){
+				indexSlide = (allowCircleSlide)?0:arraySlideObject.Length - 1;
 			}
 			slideInCurrentTouch = true;
-			ShowPlayer(n);
+			ShowPlayer(arraySlideObject[indexSlide]);
 		}
+
 		return false;
 	}
 	public void TouchEnd(Vector2 touchPoint){
@@ -195,4 +194,5 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 	public void TouchCancel(Vector2 touchPoint){
 	}
+	#endregion
 }
