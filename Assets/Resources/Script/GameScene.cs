@@ -106,7 +106,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_player.Reset();
 	}
 	void GameOver(){
-		if(musicPlay){
+		if(musicPlay && soundDestroy != null){
 			soundDestroy.Play();
 		}
 		moveBackground.Pause = true;
@@ -194,14 +194,16 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 				indexSlide = (allowCircleSlide)?arraySlideObject.Length - 1:0;
 			}
 			slideInCurrentTouch = true;
-			ShowPlayer(arraySlideObject[indexSlide]);
+			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
+				ShowPlayer(arraySlideObject[indexSlide]);
 		}else if(length < -lenghtMoveTouch){
 			indexSlide++;
 			if(indexSlide >= arraySlideObject.Length){
 				indexSlide = (allowCircleSlide)?0:arraySlideObject.Length - 1;
 			}
 			slideInCurrentTouch = true;
-			ShowPlayer(arraySlideObject[indexSlide]);
+			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
+				ShowPlayer(arraySlideObject[indexSlide]);
 		}
 
 		return false;
