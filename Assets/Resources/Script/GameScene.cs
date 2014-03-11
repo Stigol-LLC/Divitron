@@ -77,7 +77,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 	}
 	void OnDestroy(){
-		Debug.Log("Destroy");
+		//Debug.Log("Destroy");
 	}
 
 	public void SortZorder(){
@@ -115,10 +115,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		musicMenu.enabled = musicPlay;
 	}
 	void StartGame(ICall bb){
-
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
 		ViewManager.Active.GetViewById("Game").IsVisible = true;
-
 		PlayGame();
 	}
 	void PlayGame(){
@@ -129,11 +127,13 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
+		_player.Pause = false;
+		Count = 0;
+		count_label.MTextMesh.text = Count.ToString();
 	}
 	void Restart(ICall bb){
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 		PlayGame();
-		_player.Pause = false;
 	}
 	void ShowPlayer(ICall bb){
 		int num = int.Parse(bb.ActionValue);
