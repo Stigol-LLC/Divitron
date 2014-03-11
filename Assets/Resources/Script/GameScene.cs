@@ -133,6 +133,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	void Restart(ICall bb){
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 		PlayGame();
+		_player.Pause = false;
 	}
 	void ShowPlayer(ICall bb){
 		int num = int.Parse(bb.ActionValue);

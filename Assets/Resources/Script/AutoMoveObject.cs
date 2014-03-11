@@ -85,6 +85,7 @@ public class AutoMoveObject : MonoBehaviour {
 		foreach(var go in listGo){
 			Destroy(go);
 		}
+		listGo.Clear();
 	}
 	public void Reset(){
 		Clear();
