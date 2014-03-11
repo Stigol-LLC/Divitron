@@ -24,6 +24,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	AudioSource musicMenu = null;
 	[SerializeField]
 	AudioSource musicGame = null;
+	[SerializeField]
+	AudioSource soundDestroy = null;
 
 	[SerializeField]
 	float lenghtMoveTouch = 10.0f;
@@ -49,6 +51,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	bool slideInCurrentTouch = false;
 	// Use this for initialization
 	void Start () {
+		musicMenu.Play();
 		Application.targetFrameRate = 60;
 		TouchProcessor.Instance.AddListener(this,-1);
 		ViewManager.Active.GetViewById("GameOver").SetDelegate( "Restart", Restart );
@@ -95,35 +98,30 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		yield return new WaitForSeconds(1f);
 		ViewManager.Active.GetViewById("GameOver").IsVisible = true;
 		if(musicPlay){
-			musicMenu.enabled = true;
-			musicGame.enabled = false;
+			musicMenu.Play();
+			musicGame.Stop();
 		}
 		moveBarrier.Reset();
 		_player.GetComponent<VisualNode>().IsVisible = false;
 		_player.Reset();
 	}
 	void GameOver(){
-		//TouchProcessor.Instance.RemoveListener(this);
+		if(musicPlay){
+			soundDestroy.Play();
+		}
 		moveBackground.Pause = true;
 		moveBarrier.CurrentMoveObject().Pause = true;
 		_player.Pause = true;
 		Camera.main.animation.Play();
 		StartCoroutine("ShowGameOverView");
 	}
-	void ChangeMusic(ICall bb){
-		musicPlay = !musicPlay;
-		musicMenu.enabled = musicPlay;
-	}
-	void StartGame(ICall bb){
-		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
-		ViewManager.Active.GetViewById("Game").IsVisible = true;
-		PlayGame();
-	}
+
 	void PlayGame(){
 		moveBarrier.CurrentMoveObject().Pause = false;
 		if(musicPlay){
 			musicMenu.enabled = false;
-			musicGame.enabled = true;
+			musicMenu.Stop();
+			musicGame.Play();
 		}
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
@@ -131,6 +129,15 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		Count = 0;
 		count_label.MTextMesh.text = Count.ToString();
 	}
+	void ShowPlayer(int num){
+		if(currentShow != num){
+			string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
+			_playerAnimator.Play(playState);
+			currentShow = num;
+		}
+	}
+
+	#region Action
 	void Restart(ICall bb){
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 		PlayGame();
@@ -139,11 +146,21 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		int num = int.Parse(bb.ActionValue);
 		ShowPlayer(num);
 	}
-	void ShowPlayer(int num){
-		string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
-		_playerAnimator.Play(playState);
-		currentShow = num;
+	void ChangeMusic(ICall bb){
+		musicPlay = !musicPlay;
+		if(musicPlay){
+			musicMenu.Play();
+		}else{
+			musicMenu.Stop();
+		}
 	}
+	void StartGame(ICall bb){
+		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
+		ViewManager.Active.GetViewById("Game").IsVisible = true;
+		PlayGame();
+	}
+	#endregion
+
 
 	#region Touch
 	public Rect GetTouchableBound(){
