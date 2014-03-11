@@ -84,14 +84,12 @@
      <Compile Include="Assets\UIEditor\Editor\Tools\ActionWindow.cs" />
      <Compile Include="Assets\UIEditor\Editor\Tools\GridWindow.cs" />
      <Compile Include="Assets\UIEditor\Editor\Tools\ProjectSetting.cs" />
+     <Compile Include="Assets\UIEditor\Editor\Tools\SaveFontTexture.cs" />
      <None Include="Assets\UIEditor\Shaders\Tiling.shader" />
      <None Include="Assets\UIEditor\Shaders\CC Text CG.cginc" />
      <None Include="Assets\UIEditor\Shaders\FontColor.shader" />
      <None Include="Assets\UIEditor\Shaders\Outline.shader" />
      <None Include="Assets\UIEditor\Shaders\Opacity.shader" />
- <Reference Include="Assets\Lib\PlistCSMono">
- <HintPath>Assets\Lib\PlistCSMono.dll</HintPath>
- </Reference>
  <Reference Include="\Applications\Unity\Unity.app\Contents\Frameworks\Managed\UnityEditor.Graphs">
  <HintPath>\Applications\Unity\Unity.app\Contents\Frameworks\Managed\UnityEditor.Graphs.dll</HintPath>
  </Reference>
@@ -103,6 +101,9 @@
  </Reference>
  <Reference Include="\Applications\Unity\Unity.app\Contents\PlaybackEngines\AndroidPlayer\EditorExtensions\UnityEditor.Android.Extensions">
  <HintPath>\Applications\Unity\Unity.app\Contents\PlaybackEngines\AndroidPlayer\EditorExtensions\UnityEditor.Android.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="Assets\Lib\PlistCSMono">
+ <HintPath>Assets\Lib\PlistCSMono.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>
