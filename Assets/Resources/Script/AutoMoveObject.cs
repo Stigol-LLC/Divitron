@@ -90,6 +90,8 @@ public class AutoMoveObject : MonoBehaviour {
 	public void Reset(){
 		Clear();
 		transform.position = new Vector3(0,0,transform.position.z);
+		isDone = false;
+		_countGen = 0;
 	}
 	// Update is called once per frame
 	void Update () {
