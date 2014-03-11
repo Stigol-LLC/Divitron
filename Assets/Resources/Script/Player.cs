@@ -1,0 +1,59 @@
+﻿using UnityEngine;
+using System.Collections.Generic;
+using System;
+
+public class Player : MonoBehaviour {
+
+	private Action _actionGameOver = null;
+
+	[SerializeField]
+	public float _speedDown = 1.0f;
+	[SerializeField]
+	public float _stepUp = 50.0f;
+	[SerializeField]
+	List<PlayerChild> listChild = new List<PlayerChild>();
+	private bool _pause = false;
+	public void SetActionGameOver(Action act){
+		_actionGameOver = act;
+
+	}
+	void Update(){
+		if(_pause)
+			return;
+		bool haveCollision = false;
+		foreach(var go in listChild){
+			if(go.IsCollision){
+				haveCollision = true;
+			}
+		}
+		if(haveCollision == true){
+			_actionGameOver();
+		}
+
+		transform.Translate(0,-_speedDown,0);
+	}
+	void OnTriggerEnter2D(Collider2D other) {
+		//Debug.Log("other.name" + other.name);
+		if(other.GetComponent<Player>() == null){
+			_actionGameOver();
+			foreach(var go in listChild){
+				if(go.animation != null){
+					//haveCollision = true;
+					go.animation.Play();
+				}
+			}
+		}
+	}
+	public bool Pause{
+		get{
+			return _pause;
+		}
+		set{
+			_pause = value;
+		}
+	}
+	public void Up(){
+		if(gameObject.activeSelf)
+			transform.Translate(0,_stepUp,0);
+	}
+}
