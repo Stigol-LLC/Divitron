@@ -28,6 +28,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	AudioSource soundDestroy = null;
 
 	[SerializeField]
+	AudioSource soundButtonClick = null;
+
+	[SerializeField]
 	float lenghtMoveTouch = 10.0f;
 	Vector2 touchBegin = Vector2.zero;
 
@@ -49,8 +52,15 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	bool touch = false;
 	private int indexSlide = 0;
 
-	bool slideInCurrentTouch = false;
+	int slideInCurrentTouch = 0;
 	GameObject lastCompliteObject = null;
+
+	[SerializeField]
+	SettingProject _setting = null;
+
+	void Awake(){
+		UnityEngine.Social.localUser.Authenticate((result)=>{});
+	}
 	// Use this for initialization
 	void Start () {
 
@@ -68,20 +78,31 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		TouchProcessor.Instance.AddListener(this,-1);
 		ViewManager.Active.GetViewById("GameOver").SetDelegate( "Restart", Restart );
 		ViewManager.Active.GetViewById("GameOver").SetDelegate( "Home", GoHome );
+
+		ViewManager.Active.GetViewById("GameOver").SetDelegate( "GameCentr", GameCentr );
+		ViewManager.Active.GetViewById("GameOver").SetDelegate( "BTN_TWITTER", Twitter );
+		ViewManager.Active.GetViewById("GameOver").SetDelegate( "BTN_FACEBOOK", Facebook );
+
 		ViewManager.Active.GetViewById("Game").SetDelegate("ShowPlayer",ShowPlayer);
 
 		count_label = (Label)ViewManager.Active.GetViewById("Game").GetChildById("count");
 		ViewManager.Active.GetViewById("ViewStart").SetDelegate("Start",StartGame);
+		ViewManager.Active.GetViewById("ViewStart").SetDelegate("GameCentr",GameCentr);
+
+
 		ViewManager.Active.GetViewById("ViewStart").SetDelegate(UIEditor.ID.DefineActionName.BTN_MUSIC.ToString(),ChangeMusic);
 
 		moveBackground.Pause = false;
 		ViewManager.Active.GetViewById("ViewSpalshScreen").IsVisible = false;
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = true;
+		ViewManager.Active.GetViewById("ViewStart");
+		//View v = null;
+		//int t = v.getCount;
 
-//		ViewManager.Active.GetViewById("ViewStart").SetSingleDelegat(ButtonClick);
-//		ViewManager.Active.GetViewById("GameOver").SetSingleDelegat(ButtonClick);
-//		ViewManager.Active.GetViewById("Game").SetSingleDelegat(ButtonClick);
-//		ViewManager.Active.GetViewById("ViewInfo").SetSingleDelegat(ButtonClick);
+		ViewManager.Active.GetViewById("ViewStart").SetSingleAction(ButtonClick);
+		ViewManager.Active.GetViewById("GameOver").SetSingleAction(ButtonClick);
+		ViewManager.Active.GetViewById("Game").SetSingleAction(ButtonClick);
+		ViewManager.Active.GetViewById("Info").SetSingleAction(ButtonClick);
 	}
 	
 	// Update is called once per frame
@@ -175,6 +196,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		if(musicPlay){
 			musicMenu.Stop();
 			musicGame.Play();
+
 		}
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
@@ -183,6 +205,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		Count = 0;
 		count_label.MTextMesh.text = Count.ToString();
 	}
+
 	void ShowPlayer(int num){
 		if(currentShow != num){
 			string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
@@ -193,12 +216,25 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 
 	#region Action
+	void Twitter(ICall bb){
+		Social.Twitter.Instance().GoToPage(_setting.TWEET_FOLLOW);
+	}
+	void Facebook(ICall bb){
+		Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_APPID);
+	}
+	void GameCentr(ICall bb){
+		UnityEngine.Social.ShowLeaderboardUI();
+	}
+
 	void Restart(ICall bb){
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 		PlayGame();
 		moveBackground.Pause = false;
 	}
 	void ShowPlayer(ICall bb){
+		if(musicPlay && soundButtonClick != null){
+			soundButtonClick.Play();
+		}
 		int num = int.Parse(bb.ActionValue);
 		ShowPlayer(num);
 	}
@@ -220,6 +256,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		PlayGame();
 	}
 	void ButtonClick(ICall bb){
+		if(musicPlay && soundButtonClick != null){
+			soundButtonClick.Play();
+		}
+		//Debug.Log("ButtonClick");
 		//moveBackground.Pause = false;
 	}
 	#endregion
@@ -252,37 +292,39 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	public bool TouchMove(Vector2 touchPoint){
 		if(!touch)
 			return false;
-		if(slideInCurrentTouch)
-			return false;
+		//if(slideInCurrentTouch)
+		//	return false;
 
 		float length = touchBegin.x - touchPoint.x;
 
-		if(length > lenghtMoveTouch){
+		if(length > lenghtMoveTouch && slideInCurrentTouch != 1){
 			indexSlide--;
 			if(indexSlide < 0){
 				indexSlide = (allowCircleSlide)?arraySlideObject.Length - 1:0;
 			}
-			slideInCurrentTouch = true;
+			slideInCurrentTouch = 1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
 				ShowPlayer(arraySlideObject[indexSlide]);
-		}else if(length < -lenghtMoveTouch){
+			touchBegin = touchPoint;
+		}else if(length < -lenghtMoveTouch && slideInCurrentTouch != -1){
 			indexSlide++;
 			if(indexSlide >= arraySlideObject.Length){
 				indexSlide = (allowCircleSlide)?0:arraySlideObject.Length - 1;
 			}
-			slideInCurrentTouch = true;
+			slideInCurrentTouch = -1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
 				ShowPlayer(arraySlideObject[indexSlide]);
+			touchBegin = touchPoint;
 		}
 
 		return false;
 	}
 	public void TouchEnd(Vector2 touchPoint){
-		slideInCurrentTouch = false;
+		slideInCurrentTouch = 0;
 		return;
 	}
 	public void TouchCancel(Vector2 touchPoint){
-		slideInCurrentTouch = false;
+		slideInCurrentTouch = 0;
 	}
 	#endregion
 }
