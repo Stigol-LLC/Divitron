@@ -73,9 +73,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		count_label = (Label)ViewManager.Active.GetViewById("Game").GetChildById("count");
 		ViewManager.Active.GetViewById("ViewStart").SetDelegate("Start",StartGame);
 		ViewManager.Active.GetViewById("ViewStart").SetDelegate(UIEditor.ID.DefineActionName.BTN_MUSIC.ToString(),ChangeMusic);
-		_player.SetActionGameOver(GameOver);
+
 		moveBackground.Pause = false;
-		_playerAnimator = _player.GetComponent<Animator>();
 		ViewManager.Active.GetViewById("ViewSpalshScreen").IsVisible = false;
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = true;
 
@@ -124,7 +123,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	IEnumerator ShowGameOverView()
 	{
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSeconds(1.5f);
 
 		int bestResult = Mathf.Max(Count,PlayerPrefs.GetInt("bestResult"));
 		PlayerPrefs.SetInt("bestResult",bestResult);
@@ -143,8 +142,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			musicGame.Stop();
 		}
 		moveBarrier.Reset();
-		_player.GetComponent<VisualNode>().IsVisible = false;
-		_player.Reset();
+
+		//_player.Reset();
+		//_player.GetComponent<VisualNode>().IsVisible = false;
+		Destroy(_player.gameObject);
 	}
 	void GameOver(){
 		if(musicPlay && soundDestroy != null){
@@ -159,6 +160,14 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 
 	void PlayGame(){
+		GameObject go = GameObject.Instantiate(Resources.Load ("PlayerUnite")) as GameObject;
+		_player = go.GetComponent<Player>();
+		go.name = "PlayerUnite";
+		go.transform.parent = transform;
+
+		_player.SetActionGameOver(GameOver);
+		_playerAnimator = _player.GetComponent<Animator>();
+
 		touch = true;
 		moveBackground.Pause = false;
 		moveBarrier.Reset();
@@ -170,6 +179,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
 		_player.Pause = false;
+		currentShow = 1;
 		Count = 0;
 		count_label.MTextMesh.text = Count.ToString();
 	}

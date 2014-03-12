@@ -19,6 +19,16 @@ public class Player : MonoBehaviour {
 	public void SetActionGameOver(Action act){
 		_actionGameOver = act;
 	}
+	public Color ChildColor{
+		set{
+			foreach(var go in listChild){
+				go.GetComponent<SpriteRenderer>().color = value;
+			}
+		}
+		get{
+			return listChild[0].GetComponent<SpriteRenderer>().color;
+		}
+	}
 	void Update(){
 		if(_pause)
 			return;
@@ -40,6 +50,7 @@ public class Player : MonoBehaviour {
 	}
 	public void Reset(){
 		foreach(var go in listChild){
+			go.GetComponent<SpriteRenderer>().color = Color.white;
 			go.IsCollision = false;
 		}
 	}
