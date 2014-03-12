@@ -305,7 +305,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			slideInCurrentTouch = 1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
 				ShowPlayer(arraySlideObject[indexSlide]);
-			touchBegin = touchPoint;
+			//touchBegin = touchPoint;
+			//Debug.Log(touchBegin);
 		}else if(length < -lenghtMoveTouch && slideInCurrentTouch != -1){
 			indexSlide++;
 			if(indexSlide >= arraySlideObject.Length){
@@ -314,9 +315,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			slideInCurrentTouch = -1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
 				ShowPlayer(arraySlideObject[indexSlide]);
+		}
+		if((slideInCurrentTouch == 1 && length > 0 )||(slideInCurrentTouch == -1 && length < 0 )){
 			touchBegin = touchPoint;
 		}
-
 		return false;
 	}
 	public void TouchEnd(Vector2 touchPoint){
