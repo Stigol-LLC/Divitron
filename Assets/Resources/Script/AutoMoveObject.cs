@@ -81,6 +81,11 @@ public class AutoMoveObject : MonoBehaviour {
 			return _pause;
 		}
 	}
+	public List<GameObject> ListActiveObject{
+		get{
+			return listGo;
+		}
+	}
 	public void Clear(){
 		foreach(var go in listGo){
 			Destroy(go);

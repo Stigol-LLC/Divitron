@@ -12,6 +12,9 @@ public class Player : MonoBehaviour {
 	public float _stepUp = 50.0f;
 	[SerializeField]
 	List<PlayerChild> listChild = new List<PlayerChild>();
+	[SerializeField]
+	public GameObject playerNode = null;
+
 	private bool _pause = false;
 	public void SetActionGameOver(Action act){
 		_actionGameOver = act;
