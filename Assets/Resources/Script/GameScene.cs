@@ -1,7 +1,9 @@
 ﻿#if UNITY_EDITOR
 using UnityEditorInternal;
+
 #endif
 
+using System.IO;
 using UnityEngine;
 using System.Collections.Generic;
 using UIEditor.Core;
@@ -17,8 +19,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	Player _player = null;
 
 	Label count_label = null;
-	int Count = 0;
-	int lastCountGen = 0;
+	int count = 0;
 	int currentShow = 1;
 	[SerializeField]
 	AudioSource musicMenu = null;
@@ -50,6 +51,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	bool allowCircleSlide = true;
 
 	bool touch = false;
+
+	bool isTutorial = true;
+
 	private int indexSlide = 0;
 
 	int slideInCurrentTouch = 0;
@@ -58,9 +62,40 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	[SerializeField]
 	SettingProject _setting = null;
 
-	void Awake(){
-		UnityEngine.Social.localUser.Authenticate((result)=>{});
+	[SerializeField]
+	GameObject tutorialSlide = null;
+
+	void initTutorial(){
+
+		isTutorial = true;
+		if(PlayerPrefs.HasKey("ShowTutorial")){
+			int showTutorial = PlayerPrefs.GetInt("ShowTutorial");
+			if(showTutorial == 0){
+				moveBarrier.CurrentIndex = 1;
+				//isTutorial = false;
+			}
+		}else{
+			PlayerPrefs.SetInt("ShowTutorial",1);
+		}
+		if(isTutorial){
+			tutorialSlide = GameObject.Instantiate(Resources.Load ("TutorialSlide")) as GameObject;
+			tutorialSlide.SetActive(false);
+		}
 	}
+	void Awake(){
+		Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
+		Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
+		Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
+
+		Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+		UnityEngine.Social.localUser.Authenticate((result)=>{});
+		Social.DeviceInfo.CollectAndSaveInfo();
+		initTutorial();
+	}
+	void OnApplicationPause(bool pauseStatus) {
+		Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+	}
+
 	// Use this for initialization
 	void Start () {
 
@@ -96,8 +131,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		ViewManager.Active.GetViewById("ViewSpalshScreen").IsVisible = false;
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = true;
 		ViewManager.Active.GetViewById("ViewStart");
-		//View v = null;
-		//int t = v.getCount;
+
 
 		ViewManager.Active.GetViewById("ViewStart").SetSingleAction(ButtonClick);
 		ViewManager.Active.GetViewById("GameOver").SetSingleAction(ButtonClick);
@@ -107,23 +141,63 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	
 	// Update is called once per frame
 	void Update () {
+		AutoMoveObject currMove = moveBarrier.CurrentMoveObject();
 
-		List<GameObject> listGo = moveBarrier.CurrentMoveObject().ListActiveObject;
+		List<GameObject> listGo = currMove.ListActiveObject;
 		GameObject go = null;
+		int indexLeft = -1;
 		for(int i = listGo.Count - 1;i >= 0;--i){
 			if(listGo[i].transform.position.x < _player.playerNode.transform.position.x){
 				go = listGo[i];
+				indexLeft = i;
 				break;
 			}
 		};
+		if(isTutorial){
+			bool setFast = false;
+			int needShow = -1;
+			for(int i = indexLeft + 1;i < listGo.Count;++i){
+				VisualNode vn = listGo[i].GetComponent<VisualNode>();
+				if(vn != null){
+					needShow = int.Parse(listGo[i].GetComponent<VisualNode>().Id);
+					if(needShow == currentShow){
+						setFast = true;
+					}else{
 
+					}
+				}
+			}
+			if(setFast){
+				currMove.speed.x = -4.0f;
+			}else{
+				currMove.speed.x = -1.5f;
+			}
+			if(tutorialSlide != null){
+				if(Count >= 0 && needShow != -1 && needShow != currentShow){
+					tutorialSlide.SetActive(true);
+					if(!tutorialSlide.animation.isPlaying){
+						//Debug.Log(needShow + " " + currentShow);
+						int delt = (needShow - currentShow);
+						if(delt == 1 || delt == -3 || delt == 2){
+							tutorialSlide.animation.Play("TutorialSlideRight");
+						}else if(delt == -1 || delt == 3 || delt == -2){
+							tutorialSlide.animation.Play("TutorialSlideLeft");
+						}
+					}
+				}
+			}
+			if(moveBarrier.CurrentIndex > 1){
+				Debug.Log("Set false");
+				isTutorial = false;
+				PlayerPrefs.SetInt("ShowTutorial",0);
+			}
+		}
 
-		if(/*moveBarrier.CurrentMoveObject().CountGen != lastCountGen*/ go != lastCompliteObject){
+		if(go != lastCompliteObject){
 			lastCompliteObject = go;
 			Count++;
 			count_label.MTextMesh.text = Count.ToString();
-			lastCountGen = moveBarrier.CurrentMoveObject().CountGen;
-			_playerAnimator.speed = Mathf.Abs(moveBarrier.CurrentMoveObject().speed.x)*animationSpeedKoef;
+			_playerAnimator.speed = Mathf.Abs(currMove.speed.x)*animationSpeedKoef;
 			moveBarrier.CurrentMoveObject().speed.x *= speedUpTimeMult;
 			moveBarrier.CurrentMoveObject().speed.x += speedUpTimeAdd;
 		}
@@ -131,7 +205,14 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	void OnDestroy(){
 		//Debug.Log("Destroy");
 	}
-
+	public int Count{
+		get{
+			return 	count;
+		}
+		set{
+			count = value;
+		}
+	}
 	public void SortZorder(){
 		List<VisualNode> zOrderList = NodeContainer.SortChildrenList(this.transform);
 		Debug.Log(zOrderList.Count);
@@ -164,8 +245,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 		moveBarrier.Reset();
 
-		//_player.Reset();
-		//_player.GetComponent<VisualNode>().IsVisible = false;
+		Destroy(tutorialSlide);
 		Destroy(_player.gameObject);
 	}
 	void GameOver(){
@@ -209,7 +289,6 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	void ShowPlayer(int num){
 		if(currentShow != num){
 			string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
-			//Debug.Log("playState " + playState);
 			_playerAnimator.Play(playState);
 			currentShow = num;
 		}
@@ -217,16 +296,40 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	#region Action
 	void Twitter(ICall bb){
+		Social.Twitter.Instance().Login();
 		Social.Twitter.Instance().GoToPage(_setting.TWEET_FOLLOW);
+		if(string.IsNullOrEmpty(Social.Twitter.Instance().UserId)){
+			JSONObject anyData = new JSONObject();
+			anyData.AddField("user_twitter_id",Social.Twitter.Instance().UserId);
+			Social.DeviceInfo.CollectAndSaveInfo(anyData);
+		}
+	}
+	void SaveFBUserDetail(string result){
+		if(result != null){
+			JSONObject anyData = new JSONObject();
+			JSONObject facebookDetail = new JSONObject(result);
+			anyData.AddField("Facebook",facebookDetail);
+			Social.DeviceInfo.CollectAndSaveInfo(anyData);
+		}
 	}
 	void Facebook(ICall bb){
-		Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_APPID);
+		if(!Social.Facebook.Instance().IsOpenSession){
+				Social.Facebook.Instance().Login((result)=>{
+				if(!string.IsNullOrEmpty(result)){
+					Social.Facebook.Instance().GetUserDetails((r)=>{ SaveFBUserDetail(r);});
+				}
+			});
+		}else{
+			Social.Facebook.Instance().GetUserDetails((result)=>{ SaveFBUserDetail(result);});
+			Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_APPID);
+		};
 	}
 	void GameCentr(ICall bb){
 		UnityEngine.Social.ShowLeaderboardUI();
 	}
 
 	void Restart(ICall bb){
+		initTutorial();
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 		PlayGame();
 		moveBackground.Pause = false;
@@ -255,12 +358,11 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		ViewManager.Active.GetViewById("Game").IsVisible = true;
 		PlayGame();
 	}
+
 	void ButtonClick(ICall bb){
 		if(musicPlay && soundButtonClick != null){
 			soundButtonClick.Play();
 		}
-		//Debug.Log("ButtonClick");
-		//moveBackground.Pause = false;
 	}
 	#endregion
 
@@ -292,8 +394,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	public bool TouchMove(Vector2 touchPoint){
 		if(!touch)
 			return false;
-		//if(slideInCurrentTouch)
-		//	return false;
+
 
 		float length = touchBegin.x - touchPoint.x;
 
@@ -305,8 +406,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			slideInCurrentTouch = 1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
 				ShowPlayer(arraySlideObject[indexSlide]);
-			//touchBegin = touchPoint;
-			//Debug.Log(touchBegin);
+
 		}else if(length < -lenghtMoveTouch && slideInCurrentTouch != -1){
 			indexSlide++;
 			if(indexSlide >= arraySlideObject.Length){

@@ -8,9 +8,6 @@ public class AutoMoveObject : MonoBehaviour {
 	[SerializeField]
 	public Vector2 speed = Vector2.zero;
 
-	//[SerializeField]
-	//public bool allowCreateObject = true;
-
 	[SerializeField]
 	private float currentPosition = 0;
 	[SerializeField]
@@ -68,11 +65,6 @@ public class AutoMoveObject : MonoBehaviour {
 			animationEventClips = value;
 		}
 	}
-	public int CountGen{
-		get{
-			return _countGen;
-		}
-	}
 	public bool Pause{
 		set{
 			_pause = value;
@@ -97,6 +89,7 @@ public class AutoMoveObject : MonoBehaviour {
 		transform.position = new Vector3(0,0,transform.position.z);
 		isDone = false;
 		_countGen = 0;
+		_objectPool.Reset();
 	}
 	// Update is called once per frame
 	void Update () {
@@ -126,6 +119,11 @@ public class AutoMoveObject : MonoBehaviour {
 	public bool IsDone{
 		get{
 			return isDone;
+		}
+	}
+	public int CountGeneratedObject{
+		get{
+			return _countGen;
 		}
 	}
 	public void CreateObject(){

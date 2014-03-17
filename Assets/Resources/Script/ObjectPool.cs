@@ -20,6 +20,10 @@ public class ObjectPool : MonoBehaviour {
 
 	private GameObject lastGen = null;
 
+	public void Reset(){
+		lastGen = null;
+		currentPosition = 0;
+	}
 	public GameObject GetObject(){
 		GameObject mRef = null;
 		if(listObject.Count == 0){

@@ -18,6 +18,14 @@ public class StackMoveObject : MonoBehaviour {
 			o.Reset();
 		}
 	}
+	public int CurrentIndex{
+		set{
+			currentIndex = value;
+		}
+		get{
+			return currentIndex;
+		}
+	}
 	// Update is called once per frame
 	void Update () {
 		if(listMoveObject.Count > currentIndex && listMoveObject[currentIndex].IsDone){
