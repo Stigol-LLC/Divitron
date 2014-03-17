@@ -40,7 +40,6 @@ public class StackMoveObject : MonoBehaviour {
 	}
 	void CountDelegate(int c){
 		countCreate++;
-		Debug.Log("countCreate " + countCreate);
 	}
 	// Update is called once per frame
 	void Update () {

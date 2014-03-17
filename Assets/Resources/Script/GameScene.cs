@@ -84,20 +84,22 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		if(isTutorial){
 			tutorialSlide = GameObject.Instantiate(Resources.Load ("TutorialSlide")) as GameObject;
 			tutorialSlide.SetActive(false);
+			tutorialBaseSpeed = moveBarrier.CurrentMoveObject().speed.x;
 		}
 	}
 	void Awake(){
-		Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
-		Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
-		Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
-
-		Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
 		UnityEngine.Social.localUser.Authenticate((result)=>{});
-		Social.DeviceInfo.CollectAndSaveInfo();
+		if(_setting != null){
+			Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
+			Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
+			Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
+			Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+			Social.DeviceInfo.CollectAndSaveInfo();
+		}
 		initTutorial();
 	}
 	void OnApplicationPause(bool pauseStatus) {
-		Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+		//Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
 	}
 
 	// Use this for initialization
@@ -171,11 +173,19 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			}
 			if(setFast){
 				if(Mathf.Abs(currMove.speed.x) < Mathf.Abs(tutorialBaseSpeed*tutorialSpeedKoef)){
-					tutorialBaseSpeed = currMove.speed.x;
 					currMove.speed.x = tutorialBaseSpeed*tutorialSpeedKoef;
 				}
 			}else{
-				currMove.speed.x = tutorialBaseSpeed;
+				if(go != null){
+					if(go.transform.position.x < (_player.playerNode.transform.position.x + 100.0f)){
+						currMove.speed.x *= 0.97f;
+						if(currMove.speed.x > tutorialBaseSpeed){
+							currMove.speed.x = tutorialBaseSpeed;
+						}
+					}
+				}else{
+					currMove.speed.x = tutorialBaseSpeed;
+				}
 			}
 			if(tutorialSlide != null){
 				if(Count >= 0 && needShow != -1 && needShow != currentShow){
@@ -293,14 +303,29 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
 		_player.Pause = false;
+
+		//if(isSlide){
+			ButtonBase bb =  (ButtonBase)ViewManager.Active.GetViewById("Game").GetChildById("1");
+			bb.State = ButtonState.Focus;
+			if(ButtonBase.focusButton != null)
+				ButtonBase.focusButton.State = ButtonState.Default;
+			ButtonBase.focusButton = bb;
+		//}
+
 		currentShow = 1;
 		Count = 0;
 		count_label.MTextMesh.text = Count.ToString();
 	}
 
-	void ShowPlayer(int num){
+	void ShowPlayer(int num,bool isSlide = false){
 		if(currentShow != num){
 			string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
+			if(isSlide){
+				ButtonBase bb =  (ButtonBase)ViewManager.Active.GetViewById("Game").GetChildById(num.ToString());
+				bb.State = ButtonState.Focus;
+				ButtonBase.focusButton.State = ButtonState.Default;
+				ButtonBase.focusButton = bb;
+			}
 			_playerAnimator.Play(playState);
 			currentShow = num;
 		}
@@ -417,7 +442,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			}
 			slideInCurrentTouch = 1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
-				ShowPlayer(arraySlideObject[indexSlide]);
+				ShowPlayer(arraySlideObject[indexSlide],true);
 
 		}else if(length < -lenghtMoveTouch && slideInCurrentTouch != -1){
 			indexSlide++;
@@ -426,7 +451,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			}
 			slideInCurrentTouch = -1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
-				ShowPlayer(arraySlideObject[indexSlide]);
+				ShowPlayer(arraySlideObject[indexSlide],true);
 		}
 		if((slideInCurrentTouch == 1 && length > 0 )||(slideInCurrentTouch == -1 && length < 0 )){
 			touchBegin = touchPoint;
