@@ -17,6 +17,8 @@ public class EditorGameScene : Editor {
 		if(GUILayout.Button("Calculation zOrder")){
 			element.SortZorder();
 		}
-
+		if(GUILayout.Button("Delete Player Setting")){
+			PlayerPrefs.DeleteAll();
+		}
 	}
 }

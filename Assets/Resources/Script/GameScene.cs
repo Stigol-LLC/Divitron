@@ -74,6 +74,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	private float tutorialMotionDump = 0.97f;
 
 	private int lastMoveBarrier = 0;
+	[SerializeField]
+	private int startMoveObject = 0;
 
 	void initTutorial(){
 		isTutorial = true;
@@ -263,6 +265,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		});
 
 		PlayerPrefs.SetInt("bestResult",bestResult);
+		PlayerPrefs.Save();
 		Debug.Log(PlayerPrefs.GetInt("bestResult").ToString());
 
 		ViewManager.Active.GetViewById("GameOver").IsVisible = true;
@@ -394,7 +397,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		moveBackground.Pause = false;
 		currentRestart++;
 		if(PlayerPrefs.HasKey("MoveBarrier")){
-			moveBarrier.CurrentIndex = PlayerPrefs.GetInt("MoveBarrier");
+			moveBarrier.CurrentIndex = Mathf.Min(startMoveObject,PlayerPrefs.GetInt("MoveBarrier"));
 		}
 		if(moveBarrier.CurrentIndex == 0){
 			initTutorial();
