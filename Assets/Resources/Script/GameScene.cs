@@ -87,17 +87,18 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 	}
 	void Awake(){
-		Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
-		Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
-		Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
-
-		Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
 		UnityEngine.Social.localUser.Authenticate((result)=>{});
-		Social.DeviceInfo.CollectAndSaveInfo();
+		if(_setting != null){
+			Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
+			Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
+			Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
+			Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+			Social.DeviceInfo.CollectAndSaveInfo();
+		}
 		initTutorial();
 	}
 	void OnApplicationPause(bool pauseStatus) {
-		Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+		//Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
 	}
 
 	// Use this for initialization
@@ -293,14 +294,29 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
 		_player.Pause = false;
+
+		//if(isSlide){
+			ButtonBase bb =  (ButtonBase)ViewManager.Active.GetViewById("Game").GetChildById("1");
+			bb.State = ButtonState.Focus;
+			if(ButtonBase.focusButton != null)
+				ButtonBase.focusButton.State = ButtonState.Default;
+			ButtonBase.focusButton = bb;
+		//}
+
 		currentShow = 1;
 		Count = 0;
 		count_label.MTextMesh.text = Count.ToString();
 	}
 
-	void ShowPlayer(int num){
+	void ShowPlayer(int num,bool isSlide = false){
 		if(currentShow != num){
 			string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
+			if(isSlide){
+				ButtonBase bb =  (ButtonBase)ViewManager.Active.GetViewById("Game").GetChildById(num.ToString());
+				bb.State = ButtonState.Focus;
+				ButtonBase.focusButton.State = ButtonState.Default;
+				ButtonBase.focusButton = bb;
+			}
 			_playerAnimator.Play(playState);
 			currentShow = num;
 		}
@@ -417,7 +433,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			}
 			slideInCurrentTouch = 1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
-				ShowPlayer(arraySlideObject[indexSlide]);
+				ShowPlayer(arraySlideObject[indexSlide],true);
 
 		}else if(length < -lenghtMoveTouch && slideInCurrentTouch != -1){
 			indexSlide++;
@@ -426,7 +442,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			}
 			slideInCurrentTouch = -1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
-				ShowPlayer(arraySlideObject[indexSlide]);
+				ShowPlayer(arraySlideObject[indexSlide],true);
 		}
 		if((slideInCurrentTouch == 1 && length > 0 )||(slideInCurrentTouch == -1 && length < 0 )){
 			touchBegin = touchPoint;
