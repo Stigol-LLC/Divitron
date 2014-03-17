@@ -84,6 +84,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		if(isTutorial){
 			tutorialSlide = GameObject.Instantiate(Resources.Load ("TutorialSlide")) as GameObject;
 			tutorialSlide.SetActive(false);
+			tutorialBaseSpeed = moveBarrier.CurrentMoveObject().speed.x;
 		}
 	}
 	void Awake(){
@@ -172,11 +173,19 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			}
 			if(setFast){
 				if(Mathf.Abs(currMove.speed.x) < Mathf.Abs(tutorialBaseSpeed*tutorialSpeedKoef)){
-					tutorialBaseSpeed = currMove.speed.x;
 					currMove.speed.x = tutorialBaseSpeed*tutorialSpeedKoef;
 				}
 			}else{
-				currMove.speed.x = tutorialBaseSpeed;
+				if(go != null){
+					if(go.transform.position.x < (_player.playerNode.transform.position.x + 100.0f)){
+						currMove.speed.x *= 0.97f;
+						if(currMove.speed.x > tutorialBaseSpeed){
+							currMove.speed.x = tutorialBaseSpeed;
+						}
+					}
+				}else{
+					currMove.speed.x = tutorialBaseSpeed;
+				}
 			}
 			if(tutorialSlide != null){
 				if(Count >= 0 && needShow != -1 && needShow != currentShow){
