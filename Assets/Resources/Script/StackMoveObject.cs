@@ -14,7 +14,6 @@ public class StackMoveObject : MonoBehaviour {
 		}
 	}
 	public void Reset(){
-		currentIndex = 0;
 		countCreate  = 0;
 		foreach(var o in listMoveObject){
 			o.Reset();

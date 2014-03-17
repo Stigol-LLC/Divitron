@@ -8,6 +8,8 @@ public class AutoMoveObject : MonoBehaviour {
 	[SerializeField]
 	public Vector2 speed = Vector2.zero;
 
+	private Vector2 startSpeed = Vector2.zero;
+
 	[SerializeField]
 	private float currentPosition = 0;
 	[SerializeField]
@@ -41,6 +43,7 @@ public class AutoMoveObject : MonoBehaviour {
 	callbackCount _callbackCount = null;
 	// Use this for initialization
 	void Start () {
+		startSpeed = speed;
 		//listGo = UIEditor.Node.NodeContainer.GetAllChildren(transform);
 	}
 	public Vector2 LimitPosition{
@@ -90,6 +93,7 @@ public class AutoMoveObject : MonoBehaviour {
 		listGo.Clear();
 	}
 	public void Reset(){
+		speed = startSpeed;
 		Clear();
 		transform.position = new Vector3(0,0,transform.position.z);
 		isDone = false;

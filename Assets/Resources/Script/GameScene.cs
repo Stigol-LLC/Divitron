@@ -53,6 +53,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	bool touch = false;
 
 
+	int currentRestart = 0;
 
 	private int indexSlide = 0;
 
@@ -66,17 +67,20 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	GameObject tutorialSlide = null;
 	bool isTutorial = true;
 	float tutorialBaseSpeed = -1.5f;
+
 	[SerializeField]
-	private float tutorialSpeedKoef = 3.0f;
+	private float tutorialSpeedKoef = 16.0f;
+	[SerializeField]
+	private float tutorialMotionDump = 0.97f;
+
+	private int lastMoveBarrier = 0;
 
 	void initTutorial(){
-
 		isTutorial = true;
 		if(PlayerPrefs.HasKey("ShowTutorial")){
 			int showTutorial = PlayerPrefs.GetInt("ShowTutorial");
 			if(showTutorial == 0){
-				moveBarrier.CurrentIndex = 1;
-				//isTutorial = false;
+				isTutorial = false;
 			}
 		}else{
 			PlayerPrefs.SetInt("ShowTutorial",1);
@@ -85,11 +89,13 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			tutorialSlide = GameObject.Instantiate(Resources.Load ("TutorialSlide")) as GameObject;
 			tutorialSlide.SetActive(false);
 			tutorialBaseSpeed = moveBarrier.CurrentMoveObject().speed.x;
+			Debug.Log(tutorialBaseSpeed.ToString());
 		}
 	}
 	void Awake(){
 		UnityEngine.Social.localUser.Authenticate((result)=>{});
 		if(_setting != null){
+			Social.Chartboost.Instance().Initialize(_setting.CHARTBOOST_APPID,_setting.CHARTBOOST_SIGNATURE);
 			Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
 			Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
 			Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
@@ -97,9 +103,12 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			Social.DeviceInfo.CollectAndSaveInfo();
 		}
 		initTutorial();
+
 	}
 	void OnApplicationPause(bool pauseStatus) {
-		//Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+		if(_setting != null){
+			Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+		}
 	}
 
 	// Use this for initialization
@@ -181,7 +190,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 //				}
 				if(go != null){
 					if(go.transform.position.x < (_player.playerNode.transform.position.x + 100.0f)){
-						currMove.speed.x *= 0.97f;
+						currMove.speed.x *= tutorialMotionDump;
 						if(currMove.speed.x > tutorialBaseSpeed){
 							currMove.speed.x = tutorialBaseSpeed;
 						}
@@ -281,7 +290,16 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		moveBarrier.CurrentMoveObject().Pause = true;
 		_player.Pause = true;
 		Camera.main.animation.Play();
+		_playerAnimator.speed = 1.0f;
 		_playerAnimator.Play("Kill3");
+
+		PlayerPrefs.SetInt("MoveBarrier",moveBarrier.CurrentIndex);
+
+		if((currentRestart % 5) == 0 ){
+			//Debug.Log("Show Chartboost");
+			Social.Chartboost.Instance().CacheMoreApps(null);
+		}
+
 		StartCoroutine("ShowGameOverView");
 	}
 
@@ -304,6 +322,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 		}
 		_player.GetComponent<VisualNode>().IsVisible = true;
+		go.SetActive(true);
 		_playerAnimator.Play("HeroCome0");
 		_player.Pause = false;
 
@@ -369,10 +388,17 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 
 	void Restart(ICall bb){
-		initTutorial();
+
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 		PlayGame();
 		moveBackground.Pause = false;
+		currentRestart++;
+		if(PlayerPrefs.HasKey("MoveBarrier")){
+			moveBarrier.CurrentIndex = PlayerPrefs.GetInt("MoveBarrier");
+		}
+		if(moveBarrier.CurrentIndex == 0){
+			initTutorial();
+		}
 	}
 	void ShowPlayer(ICall bb){
 		if(musicPlay && soundButtonClick != null){
