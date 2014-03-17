@@ -52,7 +52,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	bool touch = false;
 
-	bool isTutorial = true;
+
 
 	private int indexSlide = 0;
 
@@ -64,6 +64,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	[SerializeField]
 	GameObject tutorialSlide = null;
+	bool isTutorial = true;
+	float tutorialBaseSpeed = -1.5f;
+	[SerializeField]
+	private float tutorialSpeedKoef = 3.0f;
 
 	void initTutorial(){
 
@@ -162,15 +166,16 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 					needShow = int.Parse(listGo[i].GetComponent<VisualNode>().Id);
 					if(needShow == currentShow){
 						setFast = true;
-					}else{
-
 					}
 				}
 			}
 			if(setFast){
-				currMove.speed.x = -4.0f;
+				if(Mathf.Abs(currMove.speed.x) < Mathf.Abs(tutorialBaseSpeed*tutorialSpeedKoef)){
+					tutorialBaseSpeed = currMove.speed.x;
+					currMove.speed.x = tutorialBaseSpeed*tutorialSpeedKoef;
+				}
 			}else{
-				currMove.speed.x = -1.5f;
+				currMove.speed.x = tutorialBaseSpeed;
 			}
 			if(tutorialSlide != null){
 				if(Count >= 0 && needShow != -1 && needShow != currentShow){
@@ -186,9 +191,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 					}
 				}
 			}
-			if(moveBarrier.CurrentIndex > 1){
+			if(moveBarrier.CountCreateInStack > 8){
 				Debug.Log("Set false");
 				isTutorial = false;
+				tutorialSlide.SetActive(false);
 				PlayerPrefs.SetInt("ShowTutorial",0);
 			}
 		}
@@ -228,6 +234,12 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		yield return new WaitForSeconds(1.5f);
 
 		int bestResult = Mathf.Max(Count,PlayerPrefs.GetInt("bestResult"));
+
+		UnityEngine.Social.ReportScore(bestResult,"com.oleh.gates",(result)=>{
+
+			Debug.Log((result)?"Complite send score":"failed send score");
+		});
+
 		PlayerPrefs.SetInt("bestResult",bestResult);
 		Debug.Log(PlayerPrefs.GetInt("bestResult").ToString());
 
