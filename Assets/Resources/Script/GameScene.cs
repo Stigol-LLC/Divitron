@@ -28,6 +28,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	AudioSource soundDestroy = null;
 
 	[SerializeField]
+	AudioSource soundButtonClick = null;
+
+	[SerializeField]
 	float lenghtMoveTouch = 10.0f;
 	Vector2 touchBegin = Vector2.zero;
 
@@ -46,31 +49,77 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	[SerializeField]
 	bool allowCircleSlide = true;
 
+	bool touch = false;
 	private int indexSlide = 0;
 
-	bool slideInCurrentTouch = false;
+	int slideInCurrentTouch = 0;
+	GameObject lastCompliteObject = null;
+
+	[SerializeField]
+	SettingProject _setting = null;
+
+	void Awake(){
+		UnityEngine.Social.localUser.Authenticate((result)=>{});
+	}
 	// Use this for initialization
 	void Start () {
-		musicMenu.Play();
+
+		musicPlay = (PlayerPrefs.GetInt("music") != 0);
+		if(musicPlay){
+			ViewManager.Active.GetViewById("ViewStart").GetChildById("musicOff").IsVisible = false;
+			ViewManager.Active.GetViewById("ViewStart").GetChildById("musicOn").IsVisible = true;
+			musicMenu.Play();
+		}else{
+			ViewManager.Active.GetViewById("ViewStart").GetChildById("musicOff").IsVisible = true;
+			ViewManager.Active.GetViewById("ViewStart").GetChildById("musicOn").IsVisible = false;
+		}
+
 		Application.targetFrameRate = 60;
 		TouchProcessor.Instance.AddListener(this,-1);
 		ViewManager.Active.GetViewById("GameOver").SetDelegate( "Restart", Restart );
+		ViewManager.Active.GetViewById("GameOver").SetDelegate( "Home", GoHome );
+
+		ViewManager.Active.GetViewById("GameOver").SetDelegate( "GameCentr", GameCentr );
+		ViewManager.Active.GetViewById("GameOver").SetDelegate( "BTN_TWITTER", Twitter );
+		ViewManager.Active.GetViewById("GameOver").SetDelegate( "BTN_FACEBOOK", Facebook );
+
 		ViewManager.Active.GetViewById("Game").SetDelegate("ShowPlayer",ShowPlayer);
 
 		count_label = (Label)ViewManager.Active.GetViewById("Game").GetChildById("count");
 		ViewManager.Active.GetViewById("ViewStart").SetDelegate("Start",StartGame);
+		ViewManager.Active.GetViewById("ViewStart").SetDelegate("GameCentr",GameCentr);
+
+
 		ViewManager.Active.GetViewById("ViewStart").SetDelegate(UIEditor.ID.DefineActionName.BTN_MUSIC.ToString(),ChangeMusic);
-		_player.SetActionGameOver(GameOver);
+
 		moveBackground.Pause = false;
-		_playerAnimator = _player.GetComponent<Animator>();
 		ViewManager.Active.GetViewById("ViewSpalshScreen").IsVisible = false;
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = true;
+		ViewManager.Active.GetViewById("ViewStart");
+		//View v = null;
+		//int t = v.getCount;
 
+		ViewManager.Active.GetViewById("ViewStart").SetSingleAction(ButtonClick);
+		ViewManager.Active.GetViewById("GameOver").SetSingleAction(ButtonClick);
+		ViewManager.Active.GetViewById("Game").SetSingleAction(ButtonClick);
+		ViewManager.Active.GetViewById("Info").SetSingleAction(ButtonClick);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(moveBarrier.CurrentMoveObject().CountGen != lastCountGen){
+
+		List<GameObject> listGo = moveBarrier.CurrentMoveObject().ListActiveObject;
+		GameObject go = null;
+		for(int i = listGo.Count - 1;i >= 0;--i){
+			if(listGo[i].transform.position.x < _player.playerNode.transform.position.x){
+				go = listGo[i];
+				break;
+			}
+		};
+
+
+		if(/*moveBarrier.CurrentMoveObject().CountGen != lastCountGen*/ go != lastCompliteObject){
+			lastCompliteObject = go;
 			Count++;
 			count_label.MTextMesh.text = Count.ToString();
 			lastCountGen = moveBarrier.CurrentMoveObject().CountGen;
@@ -95,15 +144,29 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	IEnumerator ShowGameOverView()
 	{
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSeconds(1.5f);
+
+		int bestResult = Mathf.Max(Count,PlayerPrefs.GetInt("bestResult"));
+		PlayerPrefs.SetInt("bestResult",bestResult);
+		Debug.Log(PlayerPrefs.GetInt("bestResult").ToString());
+
 		ViewManager.Active.GetViewById("GameOver").IsVisible = true;
+		VisualNode group = ViewManager.Active.GetViewById("GameOver").GetChildById("group");
+
+		if(group.GetChildById("result") is Label){
+			(group.GetChildById("result") as Label).MTextMesh.text = Count.ToString();
+			(group.GetChildById("bestResult") as Label).MTextMesh.text = bestResult.ToString();
+		}
+
 		if(musicPlay){
 			musicMenu.Play();
 			musicGame.Stop();
 		}
 		moveBarrier.Reset();
-		_player.GetComponent<VisualNode>().IsVisible = false;
-		_player.Reset();
+
+		//_player.Reset();
+		//_player.GetComponent<VisualNode>().IsVisible = false;
+		Destroy(_player.gameObject);
 	}
 	void GameOver(){
 		if(musicPlay && soundDestroy != null){
@@ -113,36 +176,65 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		moveBarrier.CurrentMoveObject().Pause = true;
 		_player.Pause = true;
 		Camera.main.animation.Play();
+		_playerAnimator.Play("Kill3");
 		StartCoroutine("ShowGameOverView");
 	}
 
 	void PlayGame(){
+		GameObject go = GameObject.Instantiate(Resources.Load ("PlayerUnite")) as GameObject;
+		_player = go.GetComponent<Player>();
+		go.name = "PlayerUnite";
+		go.transform.parent = transform;
+
+		_player.SetActionGameOver(GameOver);
+		_playerAnimator = _player.GetComponent<Animator>();
+
+		touch = true;
+		moveBackground.Pause = false;
+		moveBarrier.Reset();
 		moveBarrier.CurrentMoveObject().Pause = false;
 		if(musicPlay){
-			musicMenu.enabled = false;
 			musicMenu.Stop();
 			musicGame.Play();
+
 		}
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		_playerAnimator.Play("HeroCome0");
 		_player.Pause = false;
+		currentShow = 1;
 		Count = 0;
 		count_label.MTextMesh.text = Count.ToString();
 	}
+
 	void ShowPlayer(int num){
 		if(currentShow != num){
 			string playState = "Divide" + currentShow.ToString() + "_" + num.ToString();
+			//Debug.Log("playState " + playState);
 			_playerAnimator.Play(playState);
 			currentShow = num;
 		}
 	}
 
 	#region Action
+	void Twitter(ICall bb){
+		Social.Twitter.Instance().GoToPage(_setting.TWEET_FOLLOW);
+	}
+	void Facebook(ICall bb){
+		Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_APPID);
+	}
+	void GameCentr(ICall bb){
+		UnityEngine.Social.ShowLeaderboardUI();
+	}
+
 	void Restart(ICall bb){
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 		PlayGame();
+		moveBackground.Pause = false;
 	}
 	void ShowPlayer(ICall bb){
+		if(musicPlay && soundButtonClick != null){
+			soundButtonClick.Play();
+		}
 		int num = int.Parse(bb.ActionValue);
 		ShowPlayer(num);
 	}
@@ -153,11 +245,22 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}else{
 			musicMenu.Stop();
 		}
+		PlayerPrefs.SetInt("music",(musicPlay)?1:0);
+	}
+	void GoHome(ICall bb){
+		moveBackground.Pause = false;
 	}
 	void StartGame(ICall bb){
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
 		ViewManager.Active.GetViewById("Game").IsVisible = true;
 		PlayGame();
+	}
+	void ButtonClick(ICall bb){
+		if(musicPlay && soundButtonClick != null){
+			soundButtonClick.Play();
+		}
+		//Debug.Log("ButtonClick");
+		//moveBackground.Pause = false;
 	}
 	#endregion
 
@@ -179,40 +282,51 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 	
 	public bool TouchBegan(Vector2 touchPoint){
+		if(!touch)
+			return false;
 		touchBegin = touchPoint;
 		_player.Up();
+		//Debug.Log("TouchBegan");
 		return true;
 	}
 	public bool TouchMove(Vector2 touchPoint){
-		if(slideInCurrentTouch)
+		if(!touch)
 			return false;
+		//if(slideInCurrentTouch)
+		//	return false;
+
 		float length = touchBegin.x - touchPoint.x;
 
-		if(length > lenghtMoveTouch){
+		if(length > lenghtMoveTouch && slideInCurrentTouch != 1){
 			indexSlide--;
 			if(indexSlide < 0){
 				indexSlide = (allowCircleSlide)?arraySlideObject.Length - 1:0;
 			}
-			slideInCurrentTouch = true;
+			slideInCurrentTouch = 1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
 				ShowPlayer(arraySlideObject[indexSlide]);
-		}else if(length < -lenghtMoveTouch){
+			//touchBegin = touchPoint;
+			//Debug.Log(touchBegin);
+		}else if(length < -lenghtMoveTouch && slideInCurrentTouch != -1){
 			indexSlide++;
 			if(indexSlide >= arraySlideObject.Length){
 				indexSlide = (allowCircleSlide)?0:arraySlideObject.Length - 1;
 			}
-			slideInCurrentTouch = true;
+			slideInCurrentTouch = -1;
 			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
 				ShowPlayer(arraySlideObject[indexSlide]);
 		}
-
+		if((slideInCurrentTouch == 1 && length > 0 )||(slideInCurrentTouch == -1 && length < 0 )){
+			touchBegin = touchPoint;
+		}
 		return false;
 	}
 	public void TouchEnd(Vector2 touchPoint){
-		slideInCurrentTouch = false;
+		slideInCurrentTouch = 0;
 		return;
 	}
 	public void TouchCancel(Vector2 touchPoint){
+		slideInCurrentTouch = 0;
 	}
 	#endregion
 }
