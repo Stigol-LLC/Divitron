@@ -5,7 +5,6 @@ using UIEditor.Node;
 
 public class EditorAutoMoveObject : Editor {
 	string key = "";
-	AnimationClip clip = null;
 	public override void OnInspectorGUI() {
 		DrawDefaultInspector();
 		AutoMoveObject elem = (AutoMoveObject)target;

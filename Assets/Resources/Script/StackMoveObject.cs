@@ -6,6 +6,7 @@ public class StackMoveObject : MonoBehaviour {
 	[SerializeField]
 	List<AutoMoveObject> listMoveObject = new List<AutoMoveObject>();
 	int currentIndex = 0;
+	int countCreate = 0;
 
 	public List<AutoMoveObject> ListMoveObject{
 		get{
@@ -14,9 +15,32 @@ public class StackMoveObject : MonoBehaviour {
 	}
 	public void Reset(){
 		currentIndex = 0;
+		countCreate  = 0;
 		foreach(var o in listMoveObject){
 			o.Reset();
 		}
+	}
+	public int CurrentIndex{
+		set{
+			currentIndex = value;
+		}
+		get{
+			return currentIndex;
+		}
+	}
+	void Start() {
+		foreach(var l in listMoveObject){
+			l.SetCallBackCount(CountDelegate);
+		}
+	}
+	public int CountCreateInStack{
+		get{
+			return countCreate;
+		}
+	}
+	void CountDelegate(int c){
+		countCreate++;
+		Debug.Log("countCreate " + countCreate);
 	}
 	// Update is called once per frame
 	void Update () {

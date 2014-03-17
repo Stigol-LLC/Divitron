@@ -8,9 +8,6 @@ public class AutoMoveObject : MonoBehaviour {
 	[SerializeField]
 	public Vector2 speed = Vector2.zero;
 
-	//[SerializeField]
-	//public bool allowCreateObject = true;
-
 	[SerializeField]
 	private float currentPosition = 0;
 	[SerializeField]
@@ -40,6 +37,8 @@ public class AutoMoveObject : MonoBehaviour {
 	private List<GameObject> listGo = new List<GameObject>();
 	private int _countGen = 0;
 
+	public delegate void callbackCount(int count);
+	callbackCount _callbackCount = null;
 	// Use this for initialization
 	void Start () {
 		//listGo = UIEditor.Node.NodeContainer.GetAllChildren(transform);
@@ -68,11 +67,6 @@ public class AutoMoveObject : MonoBehaviour {
 			animationEventClips = value;
 		}
 	}
-	public int CountGen{
-		get{
-			return _countGen;
-		}
-	}
 	public bool Pause{
 		set{
 			_pause = value;
@@ -86,6 +80,9 @@ public class AutoMoveObject : MonoBehaviour {
 			return listGo;
 		}
 	}
+	public void SetCallBackCount(callbackCount _delegate){
+		_callbackCount = _delegate;
+	}
 	public void Clear(){
 		foreach(var go in listGo){
 			Destroy(go);
@@ -97,6 +94,7 @@ public class AutoMoveObject : MonoBehaviour {
 		transform.position = new Vector3(0,0,transform.position.z);
 		isDone = false;
 		_countGen = 0;
+		_objectPool.Reset();
 	}
 	// Update is called once per frame
 	void Update () {
@@ -128,6 +126,17 @@ public class AutoMoveObject : MonoBehaviour {
 			return isDone;
 		}
 	}
+	public int CountGeneratedObject{
+		get{
+			return _countGen;
+		}
+		set{
+			_countGen = value;
+			if(_callbackCount != null){
+				_callbackCount(_countGen);
+			}
+		}
+	}
 	public void CreateObject(){
 		if(countCreateObject != -1 && _countGen >= countCreateObject){
 			isDone = true;
@@ -135,7 +144,7 @@ public class AutoMoveObject : MonoBehaviour {
 		}
 		GameObject ret  = _objectPool.GetObject();
 		if(ret != null){
-			_countGen++;
+			CountGeneratedObject++;
 			GameObject go = GameObject.Instantiate(ret) as GameObject;
 			float z = go.transform.localPosition.z;
 			go.transform.position = new Vector3(objectCreatePostion.x,objectCreatePostion.y,go.transform.position.z);
