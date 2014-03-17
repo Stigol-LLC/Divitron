@@ -176,6 +176,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 					currMove.speed.x = tutorialBaseSpeed*tutorialSpeedKoef;
 				}
 			}else{
+//				if(needShow == currentShow){
+//					currMove.speed.x = tutorialBaseSpeed;
+//				}
 				if(go != null){
 					if(go.transform.position.x < (_player.playerNode.transform.position.x + 100.0f)){
 						currMove.speed.x *= 0.97f;
@@ -241,7 +244,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	IEnumerator ShowGameOverView()
 	{
-		yield return new WaitForSeconds(1.5f);
+		yield return new WaitForSeconds(1.7f);
 
 		int bestResult = Mathf.Max(Count,PlayerPrefs.GetInt("bestResult"));
 
