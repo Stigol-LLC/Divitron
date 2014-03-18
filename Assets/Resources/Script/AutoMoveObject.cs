@@ -41,10 +41,16 @@ public class AutoMoveObject : MonoBehaviour {
 
 	public delegate void callbackCount(int count);
 	callbackCount _callbackCount = null;
+	
 	// Use this for initialization
 	void Start () {
 		startSpeed = speed;
 		//listGo = UIEditor.Node.NodeContainer.GetAllChildren(transform);
+	}
+	public int CountActiveObject{
+		get{
+			return listGo.Count;
+		}
 	}
 	public Vector2 LimitPosition{
 		set{
@@ -112,7 +118,8 @@ public class AutoMoveObject : MonoBehaviour {
 		}
 		if(isLimitedPosition)
 			RemoveBorder();
-		if(isDone && listGo.Count == 0){
+		if(isDone){
+			Debug.Log(listGo.Count);
 			_pause = true;
 		}
 	}
@@ -123,6 +130,7 @@ public class AutoMoveObject : MonoBehaviour {
 				Destroy(go);
 				break;
 			}
+
 		}
 	}
 	public bool IsDone{
@@ -159,20 +167,6 @@ public class AutoMoveObject : MonoBehaviour {
 			go.name = ret.name;
 			listGo.Add(go);
 
-//			if(animationEventClips.Contains(_countGen.ToString())){
-//
-//				if(animation == null){
-//					gameObject.AddComponent<Animation>();
-//				}
-//
-//				AnimationClip animClip = animationEventClips.GetValue(_countGen.ToString());
-//				animation.RemoveClip(animClip.name);
-//				if(animClip != null && animation.GetClip(animClip.name) == null){
-//					animation.AddClip(animClip,animClip.name);
-//				}
-//				animation.AddClip(animClip,animClip.name);
-//			}else{
-//			}
 		}
 
 	}
