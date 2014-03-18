@@ -118,8 +118,8 @@ public class AutoMoveObject : MonoBehaviour {
 		}
 		if(isLimitedPosition)
 			RemoveBorder();
-		if(isDone){
-			Debug.Log(listGo.Count);
+		if(isDone && listGo.Count == 0){
+			//Debug.Log(listGo.Count);
 			_pause = true;
 		}
 	}

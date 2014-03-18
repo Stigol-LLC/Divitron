@@ -19,6 +19,18 @@ public class StackMoveObject : MonoBehaviour {
 			o.Reset();
 		}
 	}
+	public bool Pause{
+		set{
+			foreach(var o in listMoveObject){
+				o.Pause = value;
+			}
+		}
+	}
+	public void Clear(){
+		foreach(var o in listMoveObject){
+			o.Clear();
+		}
+	}
 	public int CurrentIndex{
 		set{
 			currentIndex = value;

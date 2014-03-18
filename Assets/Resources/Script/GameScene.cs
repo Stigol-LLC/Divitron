@@ -90,6 +90,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	private GameObject tutorialFindObject = null;
 
+	private string statFileName = null;
+
 	void initTutorial(){
 		AudioClip ac = null;
 
@@ -112,29 +114,45 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			Debug.Log(tutorialBaseSpeed.ToString());
 		}
 	}
+
+	void OnDestroy(){
+		AddValueStatistic("session","close");
+		//Debug.Log("Destroy");
+	}
+
 	void Awake(){
 		UnityEngine.Social.localUser.Authenticate((result)=>{});
 		if(_setting != null){
 			Social.Chartboost.Instance().Initialize(_setting.CHARTBOOST_APPID,_setting.CHARTBOOST_SIGNATURE);
+			Social.Chartboost.Instance().CacheMoreApps();
+			Social.Chartboost.Instance().CacheInterstitial();
 			Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
 			Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
 			Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
 			Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+			Social.Amazon.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
 			Social.DeviceInfo.CollectAndSaveInfo();
 		}
 		initTutorial();
-
+		AddValueStatistic("session","start");
 	}
 	void OnApplicationPause(bool pauseStatus) {
 		if(_setting != null){
 			Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+		}
+		if(pauseStatus){
+			AddValueStatistic("session","background");
+		}else{
+			AddValueStatistic("session","foreground");
 		}
 	}
 
 	// Use this for initialization
 	void Start () {
 
-		musicPlay = (PlayerPrefs.GetInt("music") != 0);
+		if(PlayerPrefs.HasKey("music"))
+			musicPlay = (PlayerPrefs.GetInt("music") != 0);
+
 		if(musicPlay){
 			ViewManager.Active.GetViewById("ViewStart").GetChildById("musicOff").IsVisible = false;
 			ViewManager.Active.GetViewById("ViewStart").GetChildById("musicOn").IsVisible = true;
@@ -180,11 +198,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 		List<GameObject> listGo = currMove.ListActiveObject;
 		GameObject go = null;
-		int indexLeft = -1;
 		for(int i = listGo.Count - 1;i >= 0;--i){
 			if(listGo[i].transform.position.x < _player.playerNode.transform.position.x){
 				go = listGo[i];
-				indexLeft = i;
 				break;
 			}
 		};
@@ -251,14 +267,11 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			lastCompliteObject = go;
 			CountScore++;
 			count_label.MTextMesh.text = CountScore.ToString();
-
 			moveBarrier.CurrentMoveObject().speed.x *= speedUpTimeMult;
 			moveBarrier.CurrentMoveObject().speed.x += speedUpTimeAdd;
 		}
 	}
-	void OnDestroy(){
-		//Debug.Log("Destroy");
-	}
+
 	public int CountScore{
 		get{
 			return 	countScore;
@@ -282,12 +295,16 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		animatorPlay = false;
 	}
 	IEnumerator ShowScore(float time){
-		if(musicPlay)
+		yield return new WaitForSeconds(0.6f);
+		if(musicPlay && CountScore > 5)
 			AudioSource.PlayClipAtPoint(clipScore,Vector3.zero);
 		int current = 0;
 		VisualNode group = ViewManager.Active.GetViewById("GameOver").GetChildById("group");
 		while(current < CountScore){
 			current++;
+			//current += (CountScore - current)/5;
+			if(current > CountScore)
+				current = CountScore;
 			if(group.GetChildById("result") is Label){
 				(group.GetChildById("result") as Label).MTextMesh.text = current.ToString();
 				//(group.GetChildById("bestResult") as Label).MTextMesh.text = bestResult.ToString();
@@ -299,7 +316,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	IEnumerator ShowGameOverView()
 	{
 		yield return new WaitForSeconds(1.7f);
-		StartCoroutine("ShowScore",0.02f);
+		StartCoroutine("ShowScore",1.6f/CountScore);
 		int bestResult = Mathf.Max(CountScore,PlayerPrefs.GetInt("bestResult"));
 
 		UnityEngine.Social.ReportScore(bestResult,"com.oleh.gates",(result)=>{
@@ -319,20 +336,39 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 
 		if(musicPlay){
-			musicMenu.Play();
 			musicGame.Stop();
+			musicMenu.Play();
 		}
+		moveBarrier.Clear();
 		moveBarrier.Reset();
 
 		Destroy(tutorialSlide);
 		Destroy(_player.gameObject);
 	}
 	void GameOver(){
+
+		AddValueStatistic("game","game_over");
+		AddValueStatistic("game","speed_over",moveBarrier.CurrentMoveObject().speed.x.ToString());
+
+		AutoMoveObject currMove = moveBarrier.CurrentMoveObject();
+		List<GameObject> listGo = currMove.ListActiveObject;
+		for(int i = 0;i < listGo.Count;++i){
+			if(listGo[i].transform.position.x > _player.playerNode.transform.position.x){
+				VisualNode vn = listGo[i].GetComponent<VisualNode>();
+				if(vn != null){
+					AddValueStatistic("game","killer",vn.Id.ToString());
+					break;
+				}
+			}
+		};
+
 		if(musicPlay && clipDestroy != null){
 			AudioSource.PlayClipAtPoint(clipDestroy,Vector3.zero);
 		}
 		moveBackground.Pause = true;
-		moveBarrier.CurrentMoveObject().Pause = true;
+		moveBarrier.Pause = true;
+
+		return;
 		_player.Pause = true;
 		Camera.main.animation.Play();
 		_playerAnimator.speed = 1.0f;
@@ -341,8 +377,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		PlayerPrefs.SetInt("MoveBarrier",moveBarrier.CurrentIndex);
 
 		if((currentRestart % 5) == 0 ){
-			//Debug.Log("Show Chartboost");
-			Social.Chartboost.Instance().CacheMoreApps(null);
+			Social.Chartboost.Instance().ShowInterstitial("",null);
+			if(!Social.Chartboost.Instance().HasCachedInterstitial(null)){
+				Social.Chartboost.Instance().CacheInterstitial();
+			}
 		}
 
 		StartCoroutine("ShowGameOverView");
@@ -351,6 +389,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		yield return new WaitForSeconds(time);
 		if(musicPlay && clipStart != null)
 			AudioSource.PlayClipAtPoint(clipStart,Vector3.zero);
+	}
+	IEnumerator StartBarrier(float time){
+		yield return new WaitForSeconds(time);
+		moveBarrier.CurrentMoveObject().Pause = false;
 	}
 	void PlayGame(){
 		GameObject go = GameObject.Instantiate(Resources.Load ("PlayerUnite")) as GameObject;
@@ -362,13 +404,15 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_playerAnimator = _player.GetComponent<Animator>();
 
 		touch = true;
+
 		moveBackground.Pause = false;
+
 		moveBarrier.Reset();
-		moveBarrier.CurrentMoveObject().Pause = false;
+		StartCoroutine("StartBarrier",1.0f);
+
 		if(musicPlay){
 			musicMenu.Stop();
 			musicGame.Play();
-
 		}
 		_player.GetComponent<VisualNode>().IsVisible = true;
 		go.SetActive(true);
@@ -413,11 +457,13 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	#region Action
 	void Twitter(ICall bb){
 		Social.Twitter.Instance().Login();
-		Social.Twitter.Instance().GoToPage(_setting.TWEET_FOLLOW);
-		if(string.IsNullOrEmpty(Social.Twitter.Instance().UserId)){
+
+		if(!string.IsNullOrEmpty(Social.Twitter.Instance().UserId)){
 			JSONObject anyData = new JSONObject();
 			anyData.AddField("user_twitter_id",Social.Twitter.Instance().UserId);
 			Social.DeviceInfo.CollectAndSaveInfo(anyData);
+		}else{
+			Social.Twitter.Instance().GoToPage(_setting.TWEET_FOLLOW);
 		}
 	}
 	void SaveFBUserDetail(string result){
@@ -433,11 +479,13 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 				Social.Facebook.Instance().Login((result)=>{
 				if(!string.IsNullOrEmpty(result)){
 					Social.Facebook.Instance().GetUserDetails((r)=>{ SaveFBUserDetail(r);});
+				}else{
+					Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_APPID);
 				}
 			});
 		}else{
 			Social.Facebook.Instance().GetUserDetails((result)=>{ SaveFBUserDetail(result);});
-			Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_APPID);
+
 		};
 	}
 	void GameCentr(ICall bb){
@@ -445,10 +493,11 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 
 	void Restart(ICall bb){
-
+		AddValueStatistic("game","restart");
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
 		PlayGame();
 		moveBackground.Pause = false;
+		moveBarrier.Clear();
 		currentRestart++;
 		if(PlayerPrefs.HasKey("MoveBarrier")){
 			moveBarrier.CurrentIndex = Mathf.Min(startMoveObject,PlayerPrefs.GetInt("MoveBarrier"));
@@ -473,11 +522,13 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			musicMenu.Stop();
 		}
 		PlayerPrefs.SetInt("music",(musicPlay)?1:0);
+		PlayerPrefs.Save();
 	}
 	void GoHome(ICall bb){
 		moveBackground.Pause = false;
 	}
 	void StartGame(ICall bb){
+		AddValueStatistic("game","start");
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
 		ViewManager.Active.GetViewById("Game").IsVisible = true;
 		PlayGame();
@@ -485,6 +536,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	void ButtonClick(ICall bb){
 		Debug.Log("bb" + bb.ActionIdWithStore);
+		AddValueStatistic("session","ClickButton",bb.ActionName);
 		if(musicPlay){
 			VisualNode vn = bb as VisualNode;
 			if(vn != null && vn.Id.CompareTo("View") == 0){
@@ -538,8 +590,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 				indexSlide = (allowCircleSlide)?arraySlideObject.Length - 1:0;
 			}
 			slideInCurrentTouch = 1;
-			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
+			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide){
+				AddValueStatistic("game","slide_left");
 				ShowPlayer(arraySlideObject[indexSlide],true);
+			}
 
 		}else if(length < -lenghtMoveTouch && slideInCurrentTouch != -1){
 			indexSlide++;
@@ -547,8 +601,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 				indexSlide = (allowCircleSlide)?0:arraySlideObject.Length - 1;
 			}
 			slideInCurrentTouch = -1;
-			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide)
+			if(indexSlide >= 0 && arraySlideObject.Length > indexSlide){
+				AddValueStatistic("game","slide_right");
 				ShowPlayer(arraySlideObject[indexSlide],true);
+			}
 		}
 		if((slideInCurrentTouch == 1 && length > 0 )||(slideInCurrentTouch == -1 && length < 0 )){
 			touchBegin = touchPoint;
@@ -561,6 +617,32 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 	public void TouchCancel(Vector2 touchPoint){
 		slideInCurrentTouch = 0;
+	}
+	public void AddValueStatistic(string _type,string _event,string _value = null,string _name = null){
+		//return;
+		JSONObject mJson = new JSONObject();
+		mJson.AddField("TIME",System.DateTime.UtcNow.ToString("MM/dd/yy-H:mm:ss"));
+		mJson.AddField("TYPE",_type);
+		mJson.AddField("EVENT",_event);
+		if(!string.IsNullOrEmpty(_value)){
+			mJson.AddField("VAL",_value);
+		}
+		if(!string.IsNullOrEmpty(_name)){
+			mJson.AddField("NAME",_name);
+		}
+		if(!Directory.Exists(Utils.Finder.GetDocumentsPath("Stat"))){
+			Directory.CreateDirectory(Utils.Finder.GetDocumentsPath("Stat"));
+		}
+		if(string.IsNullOrEmpty(statFileName)){
+			string timeStr = System.DateTime.UtcNow.ToString("yy:MM:dd:tm:H:mm:ss");
+			statFileName = "/" + Social.DeviceInfo.Hash +"_dt" + timeStr.Replace(":","")  + ".txt";
+			FileStream fileStream = new FileStream(Utils.Finder.GetDocumentsPath("Stat") + statFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+			fileStream.Close();
+		}
+		using (StreamWriter w = File.AppendText(Utils.Finder.GetDocumentsPath("Stat") + statFileName))
+		{
+			w.WriteLine(mJson.ToString().Replace("\n","").Replace("\t",""));
+		}
 	}
 	#endregion
 }
