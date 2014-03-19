@@ -111,13 +111,16 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			tutorialSlide = GameObject.Instantiate(Resources.Load ("TutorialSlide")) as GameObject;
 			tutorialSlide.SetActive(false);
 			tutorialBaseSpeed = moveBarrier.CurrentMoveObject().speed.x;
-			Debug.Log(tutorialBaseSpeed.ToString());
+			//Debug.Log(tutorialBaseSpeed.ToString());
 		}
 	}
 
 	void OnDestroy(){
 		AddValueStatistic("session","close");
-		//Debug.Log("Destroy");
+		if(_setting != null){
+			Social.Amazon.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"),"divitron-stat",new string[]{"txt"},true);
+		}
+		Debug.Log("Destroy");
 	}
 
 	void Awake(){
@@ -134,7 +137,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			Social.DeviceInfo.CollectAndSaveInfo();
 		}
 		initTutorial();
-		AddValueStatistic("session","start");
+		AddValueStatistic("session","start",null, new KeyValuePair<string, string>[]{new KeyValuePair<string, string>("Hash",Social.DeviceInfo.Hash),new KeyValuePair<string, string>("Build",Social.DeviceInfo.BuildVersion)});
 	}
 	void OnApplicationPause(bool pauseStatus) {
 		if(_setting != null){
@@ -347,6 +350,18 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 		Destroy(tutorialSlide);
 		Destroy(_player.gameObject);
+
+		yield return new WaitForSeconds(1.0f);
+		if((countStart % 3) == 0 ){
+			Social.Chartboost.Instance().ShowInterstitial("",(res)=>{
+				bool complite = !string.IsNullOrEmpty(res);
+				AddValueStatistic("game","Chartboost",(complite)?"show":"error");
+			});
+			if(!Social.Chartboost.Instance().HasCachedInterstitial(null)){
+				Social.Chartboost.Instance().CacheInterstitial();
+			}
+		}
+
 	}
 	void GameOver(){
 
@@ -359,7 +374,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			if(listGo[i].transform.position.x > _player.playerNode.transform.position.x){
 				VisualNode vn = listGo[i].GetComponent<VisualNode>();
 				if(vn != null){
-					AddValueStatistic("game","killer",vn.Id);
+					AddValueStatistic("game","killer",vn.name);
 					break;
 				}
 			}
@@ -377,13 +392,6 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_playerAnimator.Play("Kill3");
 
 		PlayerPrefs.SetInt("MoveBarrier",moveBarrier.CurrentIndex);
-
-		if((countStart % 5) == 0 ){
-			Social.Chartboost.Instance().ShowInterstitial("",null);
-			if(!Social.Chartboost.Instance().HasCachedInterstitial(null)){
-				Social.Chartboost.Instance().CacheInterstitial();
-			}
-		}
 
 		StartCoroutine("ShowGameOverView");
 	}
@@ -463,8 +471,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	#region Action
 	void Twitter(ICall bb){
-		Social.Twitter.Instance().Login();
-
+		//Social.Twitter.Instance().Login();
 		if(!string.IsNullOrEmpty(Social.Twitter.Instance().UserId)){
 			JSONObject anyData = new JSONObject();
 			anyData.AddField("user_twitter_id",Social.Twitter.Instance().UserId);
@@ -487,11 +494,15 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 				if(!string.IsNullOrEmpty(result)){
 					Social.Facebook.Instance().GetUserDetails((r)=>{ SaveFBUserDetail(r);});
 				}else{
-					Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_ID);
+
 				}
+				Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_ID);
 			});
 		}else{
-			Social.Facebook.Instance().GetUserDetails((result)=>{ SaveFBUserDetail(result);});
+			Social.Facebook.Instance().GetUserDetails((result)=>{ 
+				SaveFBUserDetail(result);
+				Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_ID);
+			});
 
 		};
 	}
@@ -510,7 +521,6 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		if(PlayerPrefs.HasKey("MoveBarrier")){
 			moveBarrier.CurrentIndex = Mathf.Min(startMoveObject,PlayerPrefs.GetInt("MoveBarrier"));
 		}
-		Debug.Log(moveBarrier.CurrentIndex);
 		if(moveBarrier.CurrentIndex == 0){
 			initTutorial();
 		}
@@ -544,18 +554,18 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 
 	void ButtonClick(ICall bb){
-		Debug.Log("bb" + bb.ActionIdWithStore);
-		AddValueStatistic("session","ClickButton",bb.ActionName);
+		//Debug.Log("bb" + bb.ActionIdWithStore);
+		AddValueStatistic("session","ClickButton",bb.ActionName + bb.ActionValue);
 		if(musicPlay){
+			//Debug.Log("bb" + bb.ActionIdWithStore);
 			VisualNode vn = bb as VisualNode;
 			if(vn != null && vn.Id.CompareTo("View") == 0){
 				if(clipChangeView != null){
 					AudioSource.PlayClipAtPoint(clipChangeView,Vector3.zero);
 				}
-			}else{
-				if(clipButtonClick != null){
-					AudioSource.PlayClipAtPoint(clipButtonClick,Vector3.zero);
-				}
+			}
+			if(clipButtonClick != null){
+				AudioSource.PlayClipAtPoint(clipButtonClick,Vector3.zero);
 			}
 		}
 	}
@@ -625,10 +635,12 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	public void TouchCancel(Vector2 touchPoint){
 		slideInCurrentTouch = 0;
 	}
-	public void AddValueStatistic(string _type,string _event,object _value = null){
+	public void AddValueStatistic(string _type,string _event,object _value = null,KeyValuePair<string,string>[] pair = null){
 		//return;
+
 		JSONObject mJson = new JSONObject();
-		mJson.AddField("TIME",System.DateTime.UtcNow.ToString("MM/dd/yy-H:mm:ss"));
+		//Debug.Log(System.DateTime.UtcNow.Ticks.ToString());
+		mJson.AddField("TIME","need resolve");
 		mJson.AddField("TYPE",_type);
 		mJson.AddField("EVENT",_event);
 		if(_value != null){
@@ -640,11 +652,16 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 				mJson.AddField("VAL",_value.ToString());
 			}
 		}
-
+		if(pair != null){
+			foreach(var k in pair){
+				mJson.AddField(k.Key,k.Value);
+			}
+		}
 		if(!Directory.Exists(Utils.Finder.GetDocumentsPath("Stat"))){
 			Directory.CreateDirectory(Utils.Finder.GetDocumentsPath("Stat"));
 		}
 		if(string.IsNullOrEmpty(statFileName)){
+		
 			string timeStr = System.DateTime.UtcNow.ToString("yy:MM:dd:tm:H:mm:ss");
 			statFileName = "/" + Social.DeviceInfo.Hash +"_dt" + timeStr.Replace(":","")  + ".txt";
 			FileStream fileStream = new FileStream(Utils.Finder.GetDocumentsPath("Stat") + statFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -652,7 +669,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 		using (StreamWriter w = File.AppendText(Utils.Finder.GetDocumentsPath("Stat") + statFileName))
 		{
-			w.WriteLine(mJson.ToString().Replace("\n","").Replace("\t",""));
+			w.WriteLine(mJson.ToString().Replace("\"need resolve\"",System.DateTime.UtcNow.Ticks.ToString()).Replace("\n","").Replace("\t",""));
 		}
 	}
 	#endregion
