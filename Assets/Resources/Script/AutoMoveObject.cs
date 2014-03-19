@@ -7,7 +7,6 @@ public class AutoMoveObject : MonoBehaviour {
 	
 	[SerializeField]
 	public Vector2 speed = Vector2.zero;
-
 	private Vector2 startSpeed = Vector2.zero;
 
 	[SerializeField]
@@ -30,22 +29,15 @@ public class AutoMoveObject : MonoBehaviour {
 	[SerializeField]
 	private Vector2 limitPosition = new Vector2(4000,4000);
 
-	[HideInInspector,SerializeField]
-	private MapStringAnimationClip animationEventClips = new MapStringAnimationClip();
-
 	[SerializeField]
 	private bool _pause = true;
 
 	private List<GameObject> listGo = new List<GameObject>();
 	private int _countGen = 0;
 
-	public delegate void callbackCount(int count);
-	callbackCount _callbackCount = null;
-	
 	// Use this for initialization
 	void Start () {
 		startSpeed = speed;
-		//listGo = UIEditor.Node.NodeContainer.GetAllChildren(transform);
 	}
 	public int CountActiveObject{
 		get{
@@ -68,14 +60,6 @@ public class AutoMoveObject : MonoBehaviour {
 			isLimitedPosition = value;
 		}
 	}
-	public MapStringAnimationClip AnimationEventClips{
-		get{
-			return animationEventClips;
-		}
-		set{
-			animationEventClips = value;
-		}
-	}
 	public bool Pause{
 		set{
 			_pause = value;
@@ -89,9 +73,7 @@ public class AutoMoveObject : MonoBehaviour {
 			return listGo;
 		}
 	}
-	public void SetCallBackCount(callbackCount _delegate){
-		_callbackCount = _delegate;
-	}
+
 	public void Clear(){
 		foreach(var go in listGo){
 			Destroy(go);
@@ -144,9 +126,6 @@ public class AutoMoveObject : MonoBehaviour {
 		}
 		set{
 			_countGen = value;
-			if(_callbackCount != null){
-				_callbackCount(_countGen);
-			}
 		}
 	}
 	public void CreateObject(){
@@ -166,7 +145,6 @@ public class AutoMoveObject : MonoBehaviour {
 			go.transform.localScale = ret.transform.localScale;
 			go.name = ret.name;
 			listGo.Add(go);
-
 		}
 
 	}

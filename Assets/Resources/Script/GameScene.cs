@@ -20,6 +20,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	Label count_label = null;
 	int countScore = 0;
+	[SerializeField]
 	int currentShow = 1;
 	[SerializeField]
 	AudioSource musicMenu = null;
@@ -61,12 +62,11 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	bool touch = false;
 
-
-	int currentRestart = 0;
+	int countStart = 0;
 
 	private int indexSlide = 0;
-
 	int slideInCurrentTouch = 0;
+
 	GameObject lastCompliteObject = null;
 
 	[SerializeField]
@@ -130,7 +130,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
 			Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
 			Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
-			Social.Amazon.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+			Social.Amazon.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"),"divitron-stat",new string[]{"txt"},true);
 			Social.DeviceInfo.CollectAndSaveInfo();
 		}
 		initTutorial();
@@ -317,6 +317,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	{
 		yield return new WaitForSeconds(1.7f);
 		StartCoroutine("ShowScore",1.6f/CountScore);
+		ViewManager.Active.GetViewById("Game").IsVisible = false;
+
+		AddValueStatistic("game","score",CountScore);
 		int bestResult = Mathf.Max(CountScore,PlayerPrefs.GetInt("bestResult"));
 
 		UnityEngine.Social.ReportScore(bestResult,"com.oleh.gates",(result)=>{
@@ -348,7 +351,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	void GameOver(){
 
 		AddValueStatistic("game","game_over");
-		AddValueStatistic("game","speed_over",moveBarrier.CurrentMoveObject().speed.x.ToString());
+		AddValueStatistic("game","speed_over",moveBarrier.CurrentMoveObject().speed.x);
 
 		AutoMoveObject currMove = moveBarrier.CurrentMoveObject();
 		List<GameObject> listGo = currMove.ListActiveObject;
@@ -356,7 +359,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			if(listGo[i].transform.position.x > _player.playerNode.transform.position.x){
 				VisualNode vn = listGo[i].GetComponent<VisualNode>();
 				if(vn != null){
-					AddValueStatistic("game","killer",vn.Id.ToString());
+					AddValueStatistic("game","killer",vn.Id);
 					break;
 				}
 			}
@@ -368,7 +371,6 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		moveBackground.Pause = true;
 		moveBarrier.Pause = true;
 
-		return;
 		_player.Pause = true;
 		Camera.main.animation.Play();
 		_playerAnimator.speed = 1.0f;
@@ -376,7 +378,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 		PlayerPrefs.SetInt("MoveBarrier",moveBarrier.CurrentIndex);
 
-		if((currentRestart % 5) == 0 ){
+		if((countStart % 5) == 0 ){
 			Social.Chartboost.Instance().ShowInterstitial("",null);
 			if(!Social.Chartboost.Instance().HasCachedInterstitial(null)){
 				Social.Chartboost.Instance().CacheInterstitial();
@@ -395,6 +397,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		moveBarrier.CurrentMoveObject().Pause = false;
 	}
 	void PlayGame(){
+		countStart++;
+
 		GameObject go = GameObject.Instantiate(Resources.Load ("PlayerUnite")) as GameObject;
 		_player = go.GetComponent<Player>();
 		go.name = "PlayerUnite";
@@ -404,6 +408,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		_playerAnimator = _player.GetComponent<Animator>();
 
 		touch = true;
+		indexSlide = 0;
 
 		moveBackground.Pause = false;
 
@@ -420,6 +425,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		StartCoroutine("StartSoundPlay",1.1f);
 		_player.Pause = false;
 
+		ViewManager.Active.GetViewById("Game").IsVisible = true;
+
 		//if(isSlide){
 			ButtonBase bb =  (ButtonBase)ViewManager.Active.GetViewById("Game").GetChildById("1");
 			bb.State = ButtonState.Focus;
@@ -427,7 +434,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 				ButtonBase.focusButton.State = ButtonState.Default;
 			ButtonBase.focusButton = bb;
 		//}
-
+		slideInCurrentTouch = 0;
 		currentShow = 1;
 		CountScore = 0;
 		count_label.MTextMesh.text = CountScore.ToString();
@@ -480,7 +487,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 				if(!string.IsNullOrEmpty(result)){
 					Social.Facebook.Instance().GetUserDetails((r)=>{ SaveFBUserDetail(r);});
 				}else{
-					Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_APPID);
+					Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_ID);
 				}
 			});
 		}else{
@@ -495,10 +502,11 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	void Restart(ICall bb){
 		AddValueStatistic("game","restart");
 		ViewManager.Active.GetViewById("GameOver").IsVisible = false;
+
 		PlayGame();
 		moveBackground.Pause = false;
 		moveBarrier.Clear();
-		currentRestart++;
+
 		if(PlayerPrefs.HasKey("MoveBarrier")){
 			moveBarrier.CurrentIndex = Mathf.Min(startMoveObject,PlayerPrefs.GetInt("MoveBarrier"));
 		}
@@ -532,6 +540,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
 		ViewManager.Active.GetViewById("Game").IsVisible = true;
 		PlayGame();
+
 	}
 
 	void ButtonClick(ICall bb){
@@ -574,13 +583,11 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			return false;
 		touchBegin = touchPoint;
 		_player.Up();
-		//Debug.Log("TouchBegan");
 		return true;
 	}
 	public bool TouchMove(Vector2 touchPoint){
 		if(!touch)
 			return false;
-
 
 		float length = touchBegin.x - touchPoint.x;
 
@@ -618,18 +625,22 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	public void TouchCancel(Vector2 touchPoint){
 		slideInCurrentTouch = 0;
 	}
-	public void AddValueStatistic(string _type,string _event,string _value = null,string _name = null){
+	public void AddValueStatistic(string _type,string _event,object _value = null){
 		//return;
 		JSONObject mJson = new JSONObject();
 		mJson.AddField("TIME",System.DateTime.UtcNow.ToString("MM/dd/yy-H:mm:ss"));
 		mJson.AddField("TYPE",_type);
 		mJson.AddField("EVENT",_event);
-		if(!string.IsNullOrEmpty(_value)){
-			mJson.AddField("VAL",_value);
+		if(_value != null){
+			if(_value.GetType() == typeof(int)){
+				mJson.AddField("VAL",(int)_value);
+			}else if(_value.GetType() == typeof(float)){
+				mJson.AddField("VAL",(float)_value);
+			}else{
+				mJson.AddField("VAL",_value.ToString());
+			}
 		}
-		if(!string.IsNullOrEmpty(_name)){
-			mJson.AddField("NAME",_name);
-		}
+
 		if(!Directory.Exists(Utils.Finder.GetDocumentsPath("Stat"))){
 			Directory.CreateDirectory(Utils.Finder.GetDocumentsPath("Stat"));
 		}
