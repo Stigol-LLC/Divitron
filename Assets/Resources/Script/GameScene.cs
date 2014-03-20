@@ -118,7 +118,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	void OnDestroy(){
 		AddValueStatistic("session","close");
 		if(_setting != null){
-			Social.Amazon.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"),"divitron-stat",new string[]{"txt"},true);
+            Social.AmazonHelper.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"), "divitron-stat", new string[] { "txt" }, true);
 		}
 		Debug.Log("Destroy");
 	}
@@ -131,9 +131,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			Social.Chartboost.Instance().CacheInterstitial();
 			Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
 			Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
-			Social.Amazon.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
-			Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
-			Social.Amazon.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"),"divitron-stat",new string[]{"txt"},true);
+			Social.AmazonHelper.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
+            Social.AmazonHelper.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath, _setting.STAT_FOLDER_NAME), _setting.AMAZON_STAT_BUCKET, new string[] { "txt" }, true);
+            Social.AmazonHelper.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"), "divitron-stat", new string[] { "txt" }, true);
 			Social.DeviceInfo.CollectAndSaveInfo();
 		}
 		initTutorial();
@@ -141,7 +141,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 	void OnApplicationPause(bool pauseStatus) {
 		if(_setting != null){
-			Social.Amazon.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath,_setting.STAT_FOLDER_NAME),_setting.AMAZON_STAT_BUCKET,new string[]{"txt"},true);
+            Social.AmazonHelper.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath, _setting.STAT_FOLDER_NAME), _setting.AMAZON_STAT_BUCKET, new string[] { "txt" }, true);
 		}
 		if(pauseStatus){
 			AddValueStatistic("session","background");
