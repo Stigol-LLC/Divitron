@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using UnityEditorInternal;
+using UIEditor;
 
 #endif
 
@@ -12,14 +13,15 @@ using System.Collections;
 
 public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	[SerializeField]
-	StackMoveObject moveBarrier = null;
+	public StackMoveObject moveBarrier = null;
 	[SerializeField]
 	AutoMoveObject moveBackground = null;
 	[SerializeField]
 	Player _player = null;
 
 	Label count_label = null;
-	int countScore = 0;
+
+	public int countScore = 0;
 	[SerializeField]
 	int currentShow = 1;
 	[SerializeField]
@@ -70,6 +72,11 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	GameObject lastCompliteObject = null;
 
 	[SerializeField]
+	int timeToReloadScene = 300;
+
+	long currTick = 0;
+
+	[SerializeField]
 	SettingProject _setting = null;
 
 	[SerializeField]
@@ -92,6 +99,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	private string statFileName = null;
 
+	[SerializeField]
+	private DebugInfo _debug = null;
+
 	void initTutorial(){
 		AudioClip ac = null;
 
@@ -106,6 +116,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			}
 		}else{
 			PlayerPrefs.SetInt("ShowTutorial",1);
+			PlayerPrefs.Save();
 		}
 		if(isTutorial){
 			tutorialSlide = GameObject.Instantiate(Resources.Load ("TutorialSlide")) as GameObject;
@@ -130,7 +141,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			Social.Chartboost.Instance().CacheMoreApps();
 			Social.Chartboost.Instance().CacheInterstitial();
 			Social.DeviceInfo.Initialize(_setting.STAT_FOLDER_NAME,_setting.STAT_APP_NAME,_setting.STAT_URL);
-			Social.Facebook.Instance().Initialize(_setting.STIGOL_FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
+			Social.Facebook.Instance().Initialize(_setting.FACEBOOK_APPID,_setting.FACEBOOK_PERMISSIONS);
 			Social.AmazonHelper.Instance().Initialize(_setting.AMAZON_ACCESS_KEY,_setting.AMAZON_SECRET_KEY);
             Social.AmazonHelper.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath, _setting.STAT_FOLDER_NAME), _setting.AMAZON_STAT_BUCKET, new string[] { "txt" }, true);
             Social.AmazonHelper.Instance().UploadFiles(Utils.Finder.GetDocumentsPath("Stat"), "divitron-stat", new string[] { "txt" }, true);
@@ -144,9 +155,13 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
             Social.AmazonHelper.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath, _setting.STAT_FOLDER_NAME), _setting.AMAZON_STAT_BUCKET, new string[] { "txt" }, true);
 		}
 		if(pauseStatus){
+			currTick = System.DateTime.UtcNow.Ticks;
 			AddValueStatistic("session","background");
 		}else{
 			AddValueStatistic("session","foreground");
+			if((System.DateTime.UtcNow.Ticks -  currTick) > timeToReloadScene*1000000){
+				Application.LoadLevel("GameScene");
+			}
 		}
 	}
 
@@ -194,11 +209,17 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		ViewManager.Active.GetViewById("Game").SetSingleAction(ButtonClick);
 		ViewManager.Active.GetViewById("Info").SetSingleAction(ButtonClick);
 	}
-	
+
+	void ShowDebugField(){
+		_debug.ShowField("Current speed ",moveBarrier.CurrentMoveObject().speed.x.ToString());
+	}
 	// Update is called once per frame
 	void Update () {
-		AutoMoveObject currMove = moveBarrier.CurrentMoveObject();
+		#if DEBUG
+		ShowDebugField();
+		#endif
 
+		AutoMoveObject currMove = moveBarrier.CurrentMoveObject();
 		List<GameObject> listGo = currMove.ListActiveObject;
 		GameObject go = null;
 		for(int i = listGo.Count - 1;i >= 0;--i){
@@ -325,9 +346,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		AddValueStatistic("game","score",CountScore);
 		int bestResult = Mathf.Max(CountScore,PlayerPrefs.GetInt("bestResult"));
 
-		UnityEngine.Social.ReportScore(bestResult,"com.oleh.gates",(result)=>{
-			Debug.Log((result)?"Complite send score":"failed send score");
-		});
+		if(UnityEngine.Social.localUser.authenticated){
+			UnityEngine.Social.ReportScore(bestResult,"com.oleh.gates",(result)=>{});
+		}
 
 		PlayerPrefs.SetInt("bestResult",bestResult);
 		PlayerPrefs.Save();
@@ -419,8 +440,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		indexSlide = 0;
 
 		moveBackground.Pause = false;
-
 		moveBarrier.Reset();
+
 		StartCoroutine("StartBarrier",1.0f);
 
 		if(musicPlay){
@@ -507,7 +528,19 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		};
 	}
 	void GameCentr(ICall bb){
-		UnityEngine.Social.ShowLeaderboardUI();
+		if(UnityEngine.Social.localUser.authenticated){
+			UnityEngine.Social.ShowLeaderboardUI();
+		}else{
+			UnityEngine.Social.localUser.Authenticate (ProcessAuthentication);
+		}
+	}
+
+	void ProcessAuthentication (bool success) {
+		if (success) {
+			UnityEngine.Social.ShowLeaderboardUI();
+		}
+		else
+			Debug.Log ("Failed to authenticate");
 	}
 
 	void Restart(ICall bb){
@@ -544,13 +577,19 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	}
 	void GoHome(ICall bb){
 		moveBackground.Pause = false;
+		moveBarrier.Clear();
+		if(PlayerPrefs.HasKey("MoveBarrier")){
+			moveBarrier.CurrentIndex = Mathf.Min(startMoveObject,PlayerPrefs.GetInt("MoveBarrier"));
+		}
+		if(moveBarrier.CurrentIndex == 0){
+			initTutorial();
+		}
 	}
 	void StartGame(ICall bb){
 		AddValueStatistic("game","start");
 		ViewManager.Active.GetViewById("ViewStart").IsVisible = false;
 		ViewManager.Active.GetViewById("Game").IsVisible = true;
 		PlayGame();
-
 	}
 
 	void ButtonClick(ICall bb){
