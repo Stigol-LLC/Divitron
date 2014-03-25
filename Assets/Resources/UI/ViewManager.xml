@@ -1,4 +1,4 @@
-<?Meta date="14.03.25 10:30:42" ver="2" ?>
+<?Meta date="14.03.25 11:39:19" ver="2" ?>
 <GameObject Name="ViewManager">
   <Component Name="Transform">
     <Property Name="localPosition">(0.0, 0.0, -10.0)</Property>
@@ -14,16 +14,6 @@
     <Property Name="ZOrderList" Type="List" ValueType="UID">
       <Value ValueType="UID">5D8A691146687BDB3D9E79EF</Value>
       <Value ValueType="UID">32C1342E759070EF6F114370</Value>
-      <Value ValueType="UID">086C5CB427182B3D4AE32719</Value>
-      <Value ValueType="UID">499728BC2F4419DE722F337B</Value>
-      <Value ValueType="UID">47232A043D6148B31E573755</Value>
-      <Value ValueType="UID">31EA277F69B93364145C63E1</Value>
-      <Value ValueType="UID">56EF733D0ED21CA235327C64</Value>
-      <Value ValueType="UID">1B9543BF67F21FBC3CE11832</Value>
-      <Value ValueType="UID">39631DA11D08608D74171D61</Value>
-      <Value ValueType="UID">527D26C95E2541481F673D99</Value>
-      <Value ValueType="UID">3DB07D01362271742A0E5266</Value>
-      <Value ValueType="UID">0A2804430A5639E4082A4666</Value>
       <Value ValueType="UID">23B41ACD55F553A708BF0BDC</Value>
       <Value ValueType="UID">317D3AE51FC128580F0C6CD8</Value>
       <Value ValueType="UID">018D18A1245F5E5A76CD777A</Value>
@@ -77,6 +67,20 @@
       <Value ValueType="UID">2E8060ED4ADA4F327A230BFE</Value>
       <Value ValueType="UID">283A56136677380332D27B5D</Value>
       <Value ValueType="UID">7AD53D640D573CDE5B782E3A</Value>
+      <Value ValueType="UID">086C5CB427182B3D4AE32719</Value>
+      <Value ValueType="UID">499728BC2F4419DE722F337B</Value>
+      <Value ValueType="UID">47232A043D6148B31E573755</Value>
+      <Value ValueType="UID">31EA277F69B93364145C63E1</Value>
+      <Value ValueType="UID">56EF733D0ED21CA235327C64</Value>
+      <Value ValueType="UID">266651D466562A9F24034B29</Value>
+      <Value ValueType="UID">10C93C3E3B6F55B11AFA14F8</Value>
+      <Value ValueType="UID">1B9543BF67F21FBC3CE11832</Value>
+      <Value ValueType="UID">39631DA11D08608D74171D61</Value>
+      <Value ValueType="UID">527D26C95E2541481F673D99</Value>
+      <Value ValueType="UID">3DB07D01362271742A0E5266</Value>
+      <Value ValueType="UID">0A2804430A5639E4082A4666</Value>
+      <Value ValueType="UID">782D26CB4513490B6CC751A9</Value>
+      <Value ValueType="UID">74064A0227B255435A081E09</Value>
       <Value ValueType="UID">0C4863C82E0D53EB2D066D94</Value>
       <Value ValueType="UID">33253DE04EE474DF0B81329F</Value>
       <Value ValueType="UID">13585F5A4F2E50064FC5700F</Value>
@@ -115,7 +119,7 @@
   </Component>
   <GameObject Name="ViewUpdate" Id="499728BC2F4419DE722F337B">
     <Component Name="Transform">
-      <Property Name="localPosition">(0.0, 0.0, -0.3)</Property>
+      <Property Name="localPosition">(0.0, 0.0, -5.6)</Property>
       <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
       <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
       <Property Name="hasChanged">True</Property>
@@ -131,9 +135,9 @@
       <Property Name="IsRelativePosition">False</Property>
       <Property Name="ParentSize">(0.0, 0.0)</Property>
       <Property Name="RelativePosition">(0.0, 0.0)</Property>
-      <Property Name="Id" />
+      <Property Name="Id">Update</Property>
       <Property Name="Uid">499728BC2F4419DE722F337B</Property>
-      <Property Name="ZOrder">0</Property>
+      <Property Name="ZOrder">30</Property>
       <Property Name="IsVisible">False</Property>
       <Property Name="AllowAnimation">False</Property>
       <Property Name="AssociateAnimationClip" Type="Map" />
@@ -184,9 +188,9 @@
         <Property Name="name">BackBlack</Property>
       </Component>
     </GameObject>
-    <GameObject Name="BtnClose" Id="31EA277F69B93364145C63E1">
+    <GameObject Name="BtnClose" Id="266651D466562A9F24034B29">
       <Component Name="Transform">
-        <Property Name="localPosition">(262.0, 282.0, -0.2)</Property>
+        <Property Name="localPosition">(262.0, 282.0, -0.4)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -232,7 +236,7 @@
         <Property Name="ParentSize">(0.0, 0.0)</Property>
         <Property Name="RelativePosition">(0.3, 0.7)</Property>
         <Property Name="Id">Close</Property>
-        <Property Name="Uid">31EA277F69B93364145C63E1</Property>
+        <Property Name="Uid">266651D466562A9F24034B29</Property>
         <Property Name="ZOrder">2</Property>
         <Property Name="IsVisible">True</Property>
         <Property Name="AllowAnimation">False</Property>
@@ -243,9 +247,9 @@
         <Property Name="tag">Untagged</Property>
         <Property Name="name">BtnClose</Property>
       </Component>
-      <GameObject Name="Icon" Id="56EF733D0ED21CA235327C64">
+      <GameObject Name="Icon" Id="10C93C3E3B6F55B11AFA14F8">
         <Component Name="Transform">
-          <Property Name="localPosition">(3.0, 5.0, -0.1)</Property>
+          <Property Name="localPosition">(0.0, 0.0, -0.1)</Property>
           <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
           <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
           <Property Name="hasChanged">True</Property>
@@ -272,7 +276,7 @@
           <Property Name="ParentSize">(0.0, 0.0)</Property>
           <Property Name="RelativePosition">(0.0, 0.0)</Property>
           <Property Name="Id" />
-          <Property Name="Uid">56EF733D0ED21CA235327C64</Property>
+          <Property Name="Uid">10C93C3E3B6F55B11AFA14F8</Property>
           <Property Name="ZOrder">0</Property>
           <Property Name="IsVisible">False</Property>
           <Property Name="AllowAnimation">False</Property>
@@ -287,7 +291,7 @@
     </GameObject>
     <GameObject Name="BtnUpgrade" Id="31EA277F69B93364145C63E1">
       <Component Name="Transform">
-        <Property Name="localPosition">(-0.7, -178.2, -0.2)</Property>
+        <Property Name="localPosition">(0.0, -178.0, -0.2)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -332,7 +336,7 @@
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
         <Property Name="RelativePosition">(0.0, -0.5)</Property>
-        <Property Name="Id">Close</Property>
+        <Property Name="Id">UPGRADE</Property>
         <Property Name="Uid">31EA277F69B93364145C63E1</Property>
         <Property Name="ZOrder">2</Property>
         <Property Name="IsVisible">True</Property>
@@ -388,7 +392,7 @@
     </GameObject>
     <GameObject Name="mask" Id="086C5CB427182B3D4AE32719">
       <Component Name="Transform">
-        <Property Name="localPosition">(0.0, 0.0, 0.1)</Property>
+        <Property Name="localPosition">(0.0, 0.0, -2.2)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1500.0, 800.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -429,7 +433,7 @@
     </GameObject>
     <GameObject Name="Text_feature1" Id="527D26C95E2541481F673D99">
       <Component Name="Transform">
-        <Property Name="localPosition">(-241.0, 32.6, -0.6)</Property>
+        <Property Name="localPosition">(-241.0, 33.0, -0.8)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -450,7 +454,7 @@
         <Property Name="name">Text_feature1</Property>
       </Component>
       <Component Name="TextMesh">
-        <Property Name="text">- feature 1</Property>
+        <Property Name="text">- feature 1 /n asdsa</Property>
         <Property Name="font">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="fontSize">24</Property>
         <Property Name="fontStyle">Normal</Property>
@@ -470,6 +474,7 @@
         <Property Name="MFont">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
         <Property Name="MTextMesh">Text_feature1 (UnityEngine.TextMesh)</Property>
+        <Property Name="Caption">- feature 1 /n asdsa</Property>
         <Property Name="AllowMultiLanguage">False</Property>
         <Property Name="LanguageKey" />
         <Property Name="DefaultLanguage">en</Property>
@@ -494,7 +499,7 @@
     </GameObject>
     <GameObject Name="Text_feature2" Id="3DB07D01362271742A0E5266">
       <Component Name="Transform">
-        <Property Name="localPosition">(-241.0, -8.4, -0.7)</Property>
+        <Property Name="localPosition">(-241.0, -8.0, -0.9)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -535,6 +540,7 @@
         <Property Name="MFont">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
         <Property Name="MTextMesh">Text_feature2 (UnityEngine.TextMesh)</Property>
+        <Property Name="Caption">- feature 2</Property>
         <Property Name="AllowMultiLanguage">False</Property>
         <Property Name="LanguageKey" />
         <Property Name="DefaultLanguage">en</Property>
@@ -559,7 +565,7 @@
     </GameObject>
     <GameObject Name="Text_feature3" Id="1B9543BF67F21FBC3CE11832">
       <Component Name="Transform">
-        <Property Name="localPosition">(-241.0, -51.4, -0.4)</Property>
+        <Property Name="localPosition">(-241.0, -51.0, -0.6)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -580,12 +586,12 @@
         <Property Name="name">Text_feature3</Property>
       </Component>
       <Component Name="TextMesh">
-        <Property Name="text">- feature 3</Property>
+        <Property Name="text" />
         <Property Name="font">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="fontSize">24</Property>
         <Property Name="fontStyle">Normal</Property>
         <Property Name="offsetZ">-76.9</Property>
-        <Property Name="alignment">Center</Property>
+        <Property Name="alignment">Left</Property>
         <Property Name="anchor">MiddleLeft</Property>
         <Property Name="characterSize">10.55</Property>
         <Property Name="lineSpacing">0.6</Property>
@@ -600,6 +606,7 @@
         <Property Name="MFont">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
         <Property Name="MTextMesh">Text_feature3 (UnityEngine.TextMesh)</Property>
+        <Property Name="Caption" />
         <Property Name="AllowMultiLanguage">False</Property>
         <Property Name="LanguageKey" />
         <Property Name="DefaultLanguage">en</Property>
@@ -622,9 +629,9 @@
         <Property Name="name">Text_feature3</Property>
       </Component>
     </GameObject>
-    <GameObject Name="Text_upgrade" Id="0A2804430A5639E4082A4666">
+    <GameObject Name="Text_upgrade" Id="74064A0227B255435A081E09">
       <Component Name="Transform">
-        <Property Name="localPosition">(0.0, 255.9, -0.8)</Property>
+        <Property Name="localPosition">(0.0, 256.0, -1.2)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -665,6 +672,7 @@
         <Property Name="MFont">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
         <Property Name="MTextMesh">Text_upgrade (UnityEngine.TextMesh)</Property>
+        <Property Name="Caption">upgrade available</Property>
         <Property Name="AllowMultiLanguage">False</Property>
         <Property Name="LanguageKey" />
         <Property Name="DefaultLanguage">en</Property>
@@ -672,7 +680,7 @@
         <Property Name="ParentSize">(512.0, 384.0)</Property>
         <Property Name="RelativePosition">(0.0, 0.7)</Property>
         <Property Name="Id" />
-        <Property Name="Uid">0A2804430A5639E4082A4666</Property>
+        <Property Name="Uid">74064A0227B255435A081E09</Property>
         <Property Name="ZOrder">100</Property>
         <Property Name="IsVisible">True</Property>
         <Property Name="AllowAnimation">False</Property>
@@ -689,7 +697,7 @@
     </GameObject>
     <GameObject Name="Text_new" Id="39631DA11D08608D74171D61">
       <Component Name="Transform">
-        <Property Name="localPosition">(-241.0, 98.6, -0.5)</Property>
+        <Property Name="localPosition">(-241.0, 99.0, -0.7)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -730,6 +738,7 @@
         <Property Name="MFont">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
         <Property Name="MTextMesh">Text_new (UnityEngine.TextMesh)</Property>
+        <Property Name="Caption">what's new:</Property>
         <Property Name="AllowMultiLanguage">False</Property>
         <Property Name="LanguageKey" />
         <Property Name="DefaultLanguage">en</Property>
@@ -752,9 +761,9 @@
         <Property Name="name">Text_new</Property>
       </Component>
     </GameObject>
-    <GameObject Name="Text_version" Id="0A2804430A5639E4082A4666">
+    <GameObject Name="Text_version" Id="782D26CB4513490B6CC751A9">
       <Component Name="Transform">
-        <Property Name="localPosition">(-38.1, 183.4, -0.8)</Property>
+        <Property Name="localPosition">(-38.0, 184.0, -1.1)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -795,6 +804,7 @@
         <Property Name="MFont">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
         <Property Name="MTextMesh">Text_version (UnityEngine.TextMesh)</Property>
+        <Property Name="Caption">version</Property>
         <Property Name="AllowMultiLanguage">False</Property>
         <Property Name="LanguageKey" />
         <Property Name="DefaultLanguage">en</Property>
@@ -802,7 +812,7 @@
         <Property Name="ParentSize">(512.0, 384.0)</Property>
         <Property Name="RelativePosition">(0.0, 0.5)</Property>
         <Property Name="Id" />
-        <Property Name="Uid">0A2804430A5639E4082A4666</Property>
+        <Property Name="Uid">782D26CB4513490B6CC751A9</Property>
         <Property Name="ZOrder">100</Property>
         <Property Name="IsVisible">True</Property>
         <Property Name="AllowAnimation">False</Property>
@@ -819,7 +829,7 @@
     </GameObject>
     <GameObject Name="Text_versionDigit" Id="0A2804430A5639E4082A4666">
       <Component Name="Transform">
-        <Property Name="localPosition">(45.4, 183.4, -0.8)</Property>
+        <Property Name="localPosition">(46.0, 184.0, -1.0)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -860,13 +870,14 @@
         <Property Name="MFont">fontscore.com_h-helvetica-45-light (UnityEngine.Font)</Property>
         <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
         <Property Name="MTextMesh">Text_versionDigit (UnityEngine.TextMesh)</Property>
+        <Property Name="Caption">1.1</Property>
         <Property Name="AllowMultiLanguage">False</Property>
         <Property Name="LanguageKey" />
         <Property Name="DefaultLanguage">en</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(512.0, 384.0)</Property>
         <Property Name="RelativePosition">(0.1, 0.5)</Property>
-        <Property Name="Id" />
+        <Property Name="Id">version</Property>
         <Property Name="Uid">0A2804430A5639E4082A4666</Property>
         <Property Name="ZOrder">100</Property>
         <Property Name="IsVisible">True</Property>
@@ -885,7 +896,7 @@
   </GameObject>
   <GameObject Name="ViewSpalshScreen" Id="27590CDD4B6537AD25F20461">
     <Component Name="Transform">
-      <Property Name="localPosition">(0.0, 0.0, -8.6)</Property>
+      <Property Name="localPosition">(0.0, 0.0, -9.0)</Property>
       <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
       <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
       <Property Name="hasChanged">True</Property>
@@ -1004,7 +1015,7 @@
       <Component Name="VisualNode">
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(0.3, 0.0)</Property>
+        <Property Name="RelativePosition">(0.4, 0.0)</Property>
         <Property Name="Id" />
         <Property Name="Uid">7AD03CD076577F3F371E3A45</Property>
         <Property Name="ZOrder">1</Property>
@@ -1045,7 +1056,7 @@
       <Component Name="VisualNode">
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(0.4, 0.0)</Property>
+        <Property Name="RelativePosition">(0.5, 0.0)</Property>
         <Property Name="Id" />
         <Property Name="Uid">0A9C2B8A6FA6014266025CC6</Property>
         <Property Name="ZOrder">0</Property>
@@ -1062,7 +1073,7 @@
   </GameObject>
   <GameObject Name="ViewStart" Id="613073A634C41A750707463D">
     <Component Name="Transform">
-      <Property Name="localPosition">(0.0, 0.0, -4.3)</Property>
+      <Property Name="localPosition">(0.0, 0.0, -3.3)</Property>
       <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
       <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
       <Property Name="hasChanged">True</Property>
@@ -1133,7 +1144,7 @@
       <Component Name="VisualNode">
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(0.3, 0.5)</Property>
+        <Property Name="RelativePosition">(0.4, 0.5)</Property>
         <Property Name="Id" />
         <Property Name="Uid">43E152B06F7B320E6CD86A9A</Property>
         <Property Name="ZOrder">0</Property>
@@ -1294,7 +1305,7 @@
         <Property Name="IsTouchable">True</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(-0.5, -0.9)</Property>
+        <Property Name="RelativePosition">(-0.6, -0.9)</Property>
         <Property Name="Id">View</Property>
         <Property Name="Uid">2360645178AE640C72307752</Property>
         <Property Name="ZOrder">2</Property>
@@ -1395,7 +1406,7 @@
         <Property Name="IsTouchable">True</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(-0.4, -0.9)</Property>
+        <Property Name="RelativePosition">(-0.5, -0.9)</Property>
         <Property Name="Id">musicOn</Property>
         <Property Name="Uid">11213458007B70A87A9073AD</Property>
         <Property Name="ZOrder">2</Property>
@@ -1496,7 +1507,7 @@
         <Property Name="IsTouchable">True</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(-0.4, -0.9)</Property>
+        <Property Name="RelativePosition">(-0.5, -0.9)</Property>
         <Property Name="Id">musicOff</Property>
         <Property Name="Uid">47442C1D69CD5A9031C25C7E</Property>
         <Property Name="ZOrder">2</Property>
@@ -1597,7 +1608,7 @@
         <Property Name="IsTouchable">True</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(0.3, -0.8)</Property>
+        <Property Name="RelativePosition">(0.4, -0.8)</Property>
         <Property Name="Id">View</Property>
         <Property Name="Uid">7AD53D640D573CDE5B782E3A</Property>
         <Property Name="ZOrder">200</Property>
@@ -1733,7 +1744,7 @@
       <Component Name="VisualNode">
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(0.3, -0.5)</Property>
+        <Property Name="RelativePosition">(0.4, -0.5)</Property>
         <Property Name="Id" />
         <Property Name="Uid">383B44F9609E24BD54031146</Property>
         <Property Name="ZOrder">1</Property>
@@ -1856,7 +1867,7 @@
       <Component Name="VisualNode">
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(0.3, 0.0)</Property>
+        <Property Name="RelativePosition">(0.4, 0.0)</Property>
         <Property Name="Id" />
         <Property Name="Uid">46DD505E2F094CE000136103</Property>
         <Property Name="ZOrder">1</Property>
@@ -2077,7 +2088,7 @@
     </GameObject>
     <GameObject Name="mask" Id="2F244DFD6AF9097E66D0073E">
       <Component Name="Transform">
-        <Property Name="localPosition">(0.0, 20.0, 0.1)</Property>
+        <Property Name="localPosition">(0.0, 20.0, 1.5)</Property>
         <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
         <Property Name="localScale">(1368.0, 579.7, 1.0)</Property>
         <Property Name="hasChanged">True</Property>
@@ -2119,7 +2130,7 @@
   </GameObject>
   <GameObject Name="ViewOver" Id="2BF6520E37191D1E07E35AFC">
     <Component Name="Transform">
-      <Property Name="localPosition">(0.0, 0.0, -2.2)</Property>
+      <Property Name="localPosition">(0.0, 0.0, -1.2)</Property>
       <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
       <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
       <Property Name="hasChanged">True</Property>
@@ -2863,6 +2874,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_BestResult (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">best result</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -2928,6 +2940,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_BestResultDigit (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">175</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -2993,6 +3006,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_GameOver (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">game over</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -3058,6 +3072,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Result (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">result</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -3123,6 +3138,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_ResultDigit (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">68</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -3149,7 +3165,7 @@
   </GameObject>
   <GameObject Name="GameView" Id="23B41ACD55F553A708BF0BDC">
     <Component Name="Transform">
-      <Property Name="localPosition">(0.0, 0.0, -1.2)</Property>
+      <Property Name="localPosition">(0.0, 0.0, -0.2)</Property>
       <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
       <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
       <Property Name="hasChanged">True</Property>
@@ -3241,7 +3257,7 @@
         <Property Name="IsTouchable">True</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(-0.2, -0.8)</Property>
+        <Property Name="RelativePosition">(-0.3, -0.8)</Property>
         <Property Name="Id">1</Property>
         <Property Name="Uid">4EF273936AF766300DE70563</Property>
         <Property Name="ZOrder">2</Property>
@@ -3445,7 +3461,7 @@
         <Property Name="IsTouchable">True</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(1.6, -0.8)</Property>
+        <Property Name="RelativePosition">(1.9, -0.8)</Property>
         <Property Name="Id">3</Property>
         <Property Name="Uid">317D3AE51FC128580F0C6CD8</Property>
         <Property Name="ZOrder">2</Property>
@@ -3548,7 +3564,7 @@
         <Property Name="IsTouchable">True</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(0.0, 0.0)</Property>
-        <Property Name="RelativePosition">(0.2, -0.8)</Property>
+        <Property Name="RelativePosition">(0.3, -0.8)</Property>
         <Property Name="Id">4</Property>
         <Property Name="Uid">513A0A8D38F6068464E74FDB</Property>
         <Property Name="ZOrder">2</Property>
@@ -3646,12 +3662,13 @@
         <Property Name="MFont">null</Property>
         <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
         <Property Name="MTextMesh">Text_ResultDigit (UnityEngine.TextMesh)</Property>
+        <Property Name="Caption">0</Property>
         <Property Name="AllowMultiLanguage">False</Property>
         <Property Name="LanguageKey" />
         <Property Name="DefaultLanguage">en</Property>
         <Property Name="IsRelativePosition">False</Property>
         <Property Name="ParentSize">(512.0, 384.0)</Property>
-        <Property Name="RelativePosition">(0.5, 0.9)</Property>
+        <Property Name="RelativePosition">(0.6, 0.9)</Property>
         <Property Name="Id">count</Property>
         <Property Name="Uid">437F231E230A3B133D945DEB</Property>
         <Property Name="ZOrder">100</Property>
@@ -3753,7 +3770,7 @@
   </GameObject>
   <GameObject Name="ViewInfo" Id="0C4863C82E0D53EB2D066D94">
     <Component Name="Transform">
-      <Property Name="localPosition">(0.0, 0.0, -6.5)</Property>
+      <Property Name="localPosition">(0.0, 0.0, -6.9)</Property>
       <Property Name="localRotation">(0.0, 0.0, 0.0, 1.0)</Property>
       <Property Name="localScale">(1.0, 1.0, 1.0)</Property>
       <Property Name="hasChanged">True</Property>
@@ -3913,7 +3930,7 @@
           <Property Name="IsTouchable">True</Property>
           <Property Name="IsRelativePosition">True</Property>
           <Property Name="ParentSize">(512.0, 384.0)</Property>
-          <Property Name="RelativePosition">(-0.5, 0.9)</Property>
+          <Property Name="RelativePosition">(-0.6, 0.9)</Property>
           <Property Name="Id">View</Property>
           <Property Name="Uid">0FA051A41FDC587C34382767</Property>
           <Property Name="ZOrder">2</Property>
@@ -4134,6 +4151,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_music (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">music</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -4199,6 +4217,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_BestResult (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">art</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -4264,6 +4283,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_anim (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">animation</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -4329,12 +4349,13 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Ostap (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">Kevin MacLeod</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
           <Property Name="IsRelativePosition">False</Property>
           <Property Name="ParentSize">(512.0, 384.0)</Property>
-          <Property Name="RelativePosition">(0.2, -0.3)</Property>
+          <Property Name="RelativePosition">(0.3, -0.3)</Property>
           <Property Name="Id" />
           <Property Name="Uid">00D92E35219017613CF34B86</Property>
           <Property Name="ZOrder">100</Property>
@@ -4394,12 +4415,13 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Ostap (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">(incompetech.com)</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
           <Property Name="IsRelativePosition">False</Property>
           <Property Name="ParentSize">(512.0, 384.0)</Property>
-          <Property Name="RelativePosition">(0.2, -0.4)</Property>
+          <Property Name="RelativePosition">(0.3, -0.4)</Property>
           <Property Name="Id" />
           <Property Name="Uid">53DF0587642252A9062D7CEF</Property>
           <Property Name="ZOrder">100</Property>
@@ -4459,6 +4481,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Prog (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">code</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -4524,12 +4547,13 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Viola (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">Viola Shkhaliyeva</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
           <Property Name="IsRelativePosition">False</Property>
           <Property Name="ParentSize">(512.0, 384.0)</Property>
-          <Property Name="RelativePosition">(0.2, 0.2)</Property>
+          <Property Name="RelativePosition">(0.3, 0.2)</Property>
           <Property Name="Id" />
           <Property Name="Uid">52334F196AED4EE853AC34EC</Property>
           <Property Name="ZOrder">100</Property>
@@ -4589,12 +4613,13 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Misha (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">Myhailo Philipchuk</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
           <Property Name="IsRelativePosition">False</Property>
           <Property Name="ParentSize">(512.0, 384.0)</Property>
-          <Property Name="RelativePosition">(0.2, 0.0)</Property>
+          <Property Name="RelativePosition">(0.3, 0.0)</Property>
           <Property Name="Id" />
           <Property Name="Uid">18635EEC36A343E8502E5FFB</Property>
           <Property Name="ZOrder">100</Property>
@@ -4654,6 +4679,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Info (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">info</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -4719,6 +4745,7 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Result (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">idea</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
@@ -4784,12 +4811,13 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Pavlo (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">Pavlo Senyshyn</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
           <Property Name="IsRelativePosition">False</Property>
           <Property Name="ParentSize">(512.0, 384.0)</Property>
-          <Property Name="RelativePosition">(0.2, 0.3)</Property>
+          <Property Name="RelativePosition">(0.3, 0.3)</Property>
           <Property Name="Id" />
           <Property Name="Uid">6BF778302BC96C620C6A6A1C</Property>
           <Property Name="ZOrder">100</Property>
@@ -4849,12 +4877,13 @@
           <Property Name="MFont">null</Property>
           <Property Name="FontColor">RGBA(1.000, 1.000, 1.000, 1.000)</Property>
           <Property Name="MTextMesh">Text_Ostap (UnityEngine.TextMesh)</Property>
+          <Property Name="Caption">Ostap Dovbush</Property>
           <Property Name="AllowMultiLanguage">False</Property>
           <Property Name="LanguageKey" />
           <Property Name="DefaultLanguage">en</Property>
           <Property Name="IsRelativePosition">False</Property>
           <Property Name="ParentSize">(512.0, 384.0)</Property>
-          <Property Name="RelativePosition">(0.2, -0.1)</Property>
+          <Property Name="RelativePosition">(0.3, -0.1)</Property>
           <Property Name="Id" />
           <Property Name="Uid">6F706EB400EE699820D33901</Property>
           <Property Name="ZOrder">100</Property>

@@ -3,7 +3,6 @@ using UnityEditorInternal;
 using UIEditor;
 
 #endif
-
 using System.IO;
 using UnityEngine;
 using System.Collections.Generic;
@@ -102,6 +101,8 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 	[SerializeField]
 	private DebugInfo _debug = null;
 
+	bool _facebookInit = false;
+
 	void initTutorial(){
 		AudioClip ac = null;
 
@@ -149,10 +150,42 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 		initTutorial();
 		AddValueStatistic("session","start",null, new KeyValuePair<string, string>[]{new KeyValuePair<string, string>("Hash",Social.DeviceInfo.Hash),new KeyValuePair<string, string>("Build",Social.DeviceInfo.BuildVersion)});
+
+//		FB.Init(()=>{
+//			_facebookInit = true;
+//		}, (isGameShown)=>{});
+	}
+
+	IEnumerator CheckITunesVersion(string Url)
+	{
+		yield return new WaitForSeconds(1.0f);
+		WWW w = new WWW(Url);
+		yield return w;
+		Debug.Log("CheckRequest complite");
+		if(!string.IsNullOrEmpty(w.error)){
+			Debug.LogError("There was an error " + w.error);
+			//actionResult(null);
+		}else{
+
+			JSONObject jobj = new JSONObject(w.text);
+			if(jobj.HasField("results")){
+				JSONObject jres = jobj.GetField("results")[0];
+				Debug.Log(jres.ToString());
+				if(jres["version"].str.CompareTo(Social.DeviceInfo.BuildVersion) != 0){
+					((ButtonBase)ViewManager.Active.GetViewById("Update").GetChildById("UPGRADE")).ActionValue = jres["trackViewUrl"].str;
+					((Label)ViewManager.Active.GetViewById("Update").GetChildById("version")).MTextMesh.text = jres["version"].str;
+					ViewManager.Active.GetViewById("Update").IsVisible = true;
+					ViewManager.Active.GetViewById("ViewStart").IsTouchable = false;
+				}
+			
+
+			}
+			//actionResult(w.text);
+		}
 	}
 	void OnApplicationPause(bool pauseStatus) {
 		if(_setting != null){
-            Social.AmazonHelper.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath, _setting.STAT_FOLDER_NAME), _setting.AMAZON_STAT_BUCKET, new string[] { "txt" }, true);
+			Social.AmazonHelper.Instance().UploadFiles(Path.Combine(UIEditor.Util.Finder.SandboxPath, _setting.STAT_FOLDER_NAME), _setting.AMAZON_STAT_BUCKET, new string[] { "txt" }, true);
 		}
 		if(pauseStatus){
 			currTick = System.DateTime.UtcNow.Ticks;
@@ -167,6 +200,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 	// Use this for initialization
 	void Start () {
+
+		if(Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork){
+			StartCoroutine("CheckITunesVersion","http://itunes.apple.com/lookup?id=641029291");
+		}
 
 		if(PlayerPrefs.HasKey("music"))
 			musicPlay = (PlayerPrefs.GetInt("music") != 0);
@@ -187,7 +224,7 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 
 		ViewManager.Active.GetViewById("GameOver").SetDelegate( "GameCentr", GameCentr );
 		ViewManager.Active.GetViewById("GameOver").SetDelegate( "BTN_TWITTER", Twitter );
-		ViewManager.Active.GetViewById("GameOver").SetDelegate( "BTN_FACEBOOK", Facebook );
+		ViewManager.Active.GetViewById("GameOver").SetDelegate( "BTN_FACEBOOK", FacebookCall );
 
 		ViewManager.Active.GetViewById("Game").SetDelegate("ShowPlayer",ShowPlayer);
 
@@ -208,6 +245,9 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		ViewManager.Active.GetViewById("GameOver").SetSingleAction(ButtonClick);
 		ViewManager.Active.GetViewById("Game").SetSingleAction(ButtonClick);
 		ViewManager.Active.GetViewById("Info").SetSingleAction(ButtonClick);
+
+		ViewManager.Active.GetViewById("Update").SetDelegate("BTN_CLOSE",(c)=>{ ViewManager.Active.GetViewById("Update").IsVisible = false;ViewManager.Active.GetViewById("ViewStart").IsTouchable = true;});
+		ViewManager.Active.GetViewById("Update").SetDelegate("BTN_UPGRADE",Upgrade);
 	}
 
 	void ShowDebugField(){
@@ -509,23 +549,60 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 			Social.DeviceInfo.CollectAndSaveInfo(anyData);
 		}
 	}
-	void Facebook(ICall bb){
-		if(!Social.Facebook.Instance().IsOpenSession){
-				Social.Facebook.Instance().Login((result)=>{
-				if(!string.IsNullOrEmpty(result)){
-					Social.Facebook.Instance().GetUserDetails((r)=>{ SaveFBUserDetail(r);});
-				}else{
+	void FacebookCall(ICall bb){
+		if(!_facebookInit)
+			return;
 
-				}
-				Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_ID);
-			});
-		}else{
-			Social.Facebook.Instance().GetUserDetails((result)=>{ 
-				SaveFBUserDetail(result);
-				Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_ID);
-			});
+		FB.Login(string.Join(",",_setting.FACEBOOK_PERMISSIONS).ToString(), LoginCallback);
 
-		};
+////		if(!Social.Facebook.Instance().IsOpenSession){
+////				Social.Facebook.Instance().Login((result)=>{
+////				if(!string.IsNullOrEmpty(result)){
+////					Social.Facebook.Instance().GetUserDetails((r)=>{ SaveFBUserDetail(r);});
+////				}else{
+////
+////				}
+////				Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_ID);
+////			});
+////		}else{
+////			Social.Facebook.Instance().GetUserDetails((result)=>{ 
+////				SaveFBUserDetail(result);
+////				Social.Facebook.Instance().GoToPage(_setting.STIGOL_FACEBOOK_ID);
+////			});
+////
+////		};
+	}
+	void LoginCallback(FBResult result)
+	{
+		if (result.Error != null){
+			//lastResponse = "Error Response:\n" + result.Error;
+		}else if (!FB.IsLoggedIn)
+		{
+			//lastResponse = "Login cancelled by Player";
+		}
+		else
+		{
+
+			//lastResponse = "Login was successful!";
+			FB.API("me",Facebook.HttpMethod.GET, Callback);
+		}
+	}
+
+	void Callback(FBResult result)
+	{
+		//lastResponseTexture = null;
+		// Some platforms return the empty string instead of null.
+		if (!string.IsNullOrEmpty(result.Error)){
+			//lastResponse = "Error Response:\n" + result.Error;
+		}
+		else
+		{
+			//lastResponseTexture = result.Texture;
+			//lastResponse = "Success Response:\n";
+		}
+	}
+	void Upgrade(ICall bb){
+		Application.OpenURL(bb.ActionValue);
 	}
 	void GameCentr(ICall bb){
 		if(UnityEngine.Social.localUser.authenticated){
@@ -708,7 +785,10 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 		using (StreamWriter w = File.AppendText(Utils.Finder.GetDocumentsPath("Stat") + statFileName))
 		{
-			w.WriteLine(mJson.ToString().Replace("\"need resolve\"",System.DateTime.UtcNow.Ticks.ToString()).Replace("\n","").Replace("\t",""));
+			System.DateTime dt = new System.DateTime(0);
+			dt.AddYears(1970);
+			long tim = (System.DateTime.UtcNow.Ticks - dt.Ticks)/100000;
+			w.WriteLine(mJson.ToString().Replace("\"need resolve\"",tim.ToString()).Replace("\n","").Replace("\t",""));
 		}
 	}
 	#endregion
