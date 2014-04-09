@@ -578,15 +578,15 @@ public class GameScene : MonoBehaviour,UIEditor.Node.ITouchable {
 		}
 		Social.Twitter.Instance().GoToPage(_setting.TWEET_FOLLOW);
 	}
-	void SaveFBUserDetail(string result){
+	void SaveFBUserDetail(JSONObject result){
 		JSONObject anyData = new JSONObject();
-		Debug.Log("Facebook = " + result);
 		anyData.AddField("Facebook",result);
+		Debug.Log("Facebook = " + anyData.ToString());
 		Social.DeviceInfo.CollectAndSaveInfo(anyData);
 	}
 	void FacebookGetUserData(){
 		Social.Facebook.Instance().GetUserDetails(string.Join(",",_setting.FACEBOOK_PERMISSIONS),(res)=>{
-			if(!string.IsNullOrEmpty(res)){
+			if(res != null){
 				SaveFBUserDetail(res);
 			}
 		});
